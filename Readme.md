@@ -1,6 +1,6 @@
 To see a demo of the game start, clone, ensure py files are exacutable (`chmod +x *.py`) and then run `./gamestart.py`.
 
-There are also some test cases that test that the class handles some simple invalid configurations correctly and that it can handle the various imperfections of the humans that want to start a game.
+There are also some test cases that test that the class handles some simple invalid configurations correctly and that it can handle the various imperfections of the humans that want to start a game. Run the tests with `./gamestart_test.py`
 
 To use this code:
 
@@ -37,7 +37,7 @@ To use this code:
 	gs.totalStartablePlayers()
 ```
 
-- and you can loop throug all players to see if each one is joining in:
+- and you can loop through all players to see if each one is joining in:
 ```python
 	for i in range(4):
 		if gs.isStartablePlayer(i):
