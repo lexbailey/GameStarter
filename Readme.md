@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/danieljabailey/GameStarter.svg)](https://travis-ci.org/danieljabailey/GameStarter)
+[![Coverage Status](https://coveralls.io/repos/danieljabailey/GameStarter/badge.svg?branch=master)](https://coveralls.io/r/danieljabailey/GameStarter?branch=master)
 
 To see a demo of the game start, clone, ensure py files are exacutable (`chmod +x *.py`) and then run `./gamestart.py`.
 
