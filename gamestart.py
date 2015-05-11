@@ -53,6 +53,10 @@ class GamePlayer:
 			#Decrement level
 			self.level = self.level - time
 
+			#If we are in start state, we will be leaving
+			if self.state == 'START':
+				self.state = 'ACTIVE'
+
 			#If level reaches 0, drop out
 			if self.level <= 0.0:
 				self.level = 0.0 #min limit to 0
@@ -175,7 +179,7 @@ class GameStarter:
 	def getState(self, playerID):
 		return self.players[playerID].getState()
 
-if __name__ == '__main__':
+def main():
 
 	#Visual test of GameStarter
 
@@ -243,6 +247,9 @@ if __name__ == '__main__':
 			print "\tPlayer %d" % i
 
 	print "Start game with %d players." % numPlayersIn
+
+if __name__ == '__main__':
+	main()
 		
 
 
