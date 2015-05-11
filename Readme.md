@@ -43,3 +43,4 @@ To use this code:
 		if gs.isStartablePlayer(i):
 			#add player i to game
 ```
+
