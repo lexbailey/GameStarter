@@ -10,44 +10,52 @@ class TestStartButtons(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	def test_single_player(self):
-		#It is invalid to have only one player. This should raise an exception
-		try:
-			gs = GameStarter(1, 1.0, 2.0)
-			self.fail('Started with 1 player')
-		except Exception as e:
-			self.assertEqual('GameStarter.__init__: At least two players are required. Attempted to init GameStarter with 1 players.', str(e))
-
-	def test_negative_player(self):
-		#It is invalid to have only one player. This should raise an exception
-		try:
-			gs = GameStarter(-99999, 1.0, 2.0)
-			self.fail('Started with -99999 player')
-		except Exception as e:
-			self.assertEqual('GameStarter.__init__: At least two players are required. Attempted to init GameStarter with -99999 players.', str(e))
-
+	def test_invalid_players(self):
+		#It is invalid to have only one player. This should raise an exception. As should a negative number.
+		invalidInputs = [1, 0, -1, None, False, True, "2", "foo"]
+		for invalidInput in invalidInputs:
+			try:
+				gs = GameStarter(invalidInput, 1.0, 2.0)
+				self.fail('Started with 1 player')
+			except Exception as e:
+				errorMsg = 'GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required).'
+				self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
 
 	def test_invalid_levels(self):
-		#It is invalid to have a negative active level threshold. This should raise an exception
-		try:
-			gs = GameStarter(2, -1.0, 2.0)
-			self.fail('Started with invalid levels')
-		except Exception as e:
-			errorMsg = 'GameStarter.__init__: activeLevel must be greater than 0, startLevel must be greater than activeLevel.'
-			self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
+		#It is invalid to have a negative active level threshold. This should raise an exception, as should invalid types.
+		invalidInputs = [(-1.0, 2.0), (1.0, 0.5), (1.0, -23.0), (2, 1), (1, 0), (-3, -1), (None, None), (True, True), (False, True), ("1", "2")]
+		for invalidInput in invalidInputs:
+			try:
+				gs = GameStarter(2, invalidInput[0], invalidInput[1])
+				self.fail('Started with invalid levels')
+			except Exception as e:
+				errorMsg = 'GameStarter.__init__: activeLevel must be a float greater than 0, startLevel must be a float greater than activeLevel.'
+				self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
 
-		try:
-			gs2 = GameStarter(2, 1.0, 0.5)
-			self.fail('Started with invalid levels')
-		except Exception as e:
-			errorMsg = 'GameStarter.__init__: activeLevel must be greater than 0, startLevel must be greater than activeLevel.'
-			self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
+	def test_invalid_time_step(self):
+		#It is invalid to have a negative time step. This should raise an exception
+		invalidInputs = [-1, -1.0, -99999, "foo", "-23", "34", "12.34", None, True, False]
+		for invalidInput in invalidInputs:
+			try:
+				gs = GameStarter(2, 1.0, 2.0)
+				gs.timeStep(invalidInput)
+				self.fail('Invalid time step allowed')
+			except Exception as e:
+				errorMsg = 'GameStarter.timeStep: time step must be a positive float.'
+				self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
 
-		try:
-			gs3 = GameStarter(2, 1.0, -23.0)
-			self.fail('Started with invalid levels')
-		except Exception as e:
-			errorMsg = 'GameStarter.__init__: activeLevel must be greater than 0, startLevel must be greater than activeLevel.'
+	def test_total_state_zero(self):
+		#totalInState should never raise an exception, it should always be 0 for an invalid input
+		testInputs = ["foo", 1, 2, None, True, False]
+		for testInput in testInputs:
+			gs = GameStarter(2, 1.0, 2.0)
+			self.assertEqual(0, gs.totalInState(testInput))
+
+	def test_total_state_correct(self):
+		testInputs = [2, 3, 4, 5, 6, 10, 999]
+		for testInput in testInputs:
+			gs = GameStarter(testInput, 1.0, 2.0)
+			self.assertEqual(testInput, gs.totalInState("OUT"))
 
 	def test_two_player_start(self):
 		#test that two players can start a game
@@ -58,8 +66,8 @@ class TestStartButtons(unittest.TestCase):
 		#Both players push
 		gs.push(0)
 		gs.push(1)
-		#Wait for two seconds
-		gs.timeStep(2.0)
+		#Wait for three seconds
+		gs.timeStep(3.0)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
 		self.assertEqual(2, gs.totalStartablePlayers())
@@ -72,8 +80,8 @@ class TestStartButtons(unittest.TestCase):
 			self.fail('Exception during __init__')
 		#One player pushes
 		gs.push(0)
-		#Wait for two seconds
-		gs.timeStep(2.0)
+		#Wait for three seconds
+		gs.timeStep(3.0)
 		#shouldStart must be false
 		self.assertFalse(gs.shouldStart())
 
