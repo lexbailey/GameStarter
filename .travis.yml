@@ -9,5 +9,5 @@ script:
   coverage run --source=gamestart.py ./gamestart_test.py
 
 after_success:
-  coveralls
+  coveralls --rcfile=.coveragerc
 
