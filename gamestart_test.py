@@ -51,9 +51,9 @@ class TestStartButtons(unittest.TestCase):
 		invalidTimes = [0, 0.0, -1, -1.0]
 		for invalidTime in invalidTimes:
 			pl.push()
-			self.assertRaises(Exception, pl.inc, invalidTime)
+			self.assertRaises(Exception, pl.timeStep, invalidTime)
 			pl.release()
-			self.assertRaises(Exception, pl.dec, invalidTime)
+			self.assertRaises(Exception, pl.timeStep, invalidTime)
 
 	def test_invalid_players(self):
 		#It is invalid to have only one player. This should raise an exception. As should a negative number.

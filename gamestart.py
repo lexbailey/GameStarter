@@ -10,8 +10,6 @@ class GamePlayer:
 		#Store level boundaries
 		self.activeLevel = activeLevel
 		self.startLevel = startLevel
-		#Start in the 'OUT' state
-		self.state = 'OUT'
 		#Start at 0 level
 		self.level = 0.0
 		#Assume button is not pushed
@@ -20,61 +18,23 @@ class GamePlayer:
 	#inc, called when button is pushed and time is stepped
 	def inc(self, time):
 		if self.pushed:
-			#Validate time
-			if time <= 0.0:
-				raise Exception('Invalid time step')
-		
-			#This is an increment, if we are out, get in
-			if self.state == 'OUT':
-				self.state = 'WAIT'
-
-			#Increment the level
-			self.level = self.level + time
-
-			#Limit the level to the maximum level
-			if self.level >= self.startLevel:
-				self.level = self.startLevel
-
-			#If we are in and we reach the active level, activate
-			if self.state == 'WAIT' and self.level >= self.activeLevel:
-				self.state = 'ACTIVE'
-
-			#If we are active and reach the start level, start
-			if self.state == 'ACTIVE' and self.level >= self.startLevel:
-				self.state = 'START'
+			#Increment the level, but don't go beyond startLevel
+			self.level = min( self.level + time, self.startLevel )
 
 	#dec, called when button is pushed and time is stepped
 	def dec(self, time):
 		if not self.pushed:
-			#Validate time
-			if time <= 0.0:
-				raise Exception('Invalid time step')
+			#Jump down to activeLevel, so we get the same 'off' delay
+			if self.level > self.activeLevel:
+				self.level = self.activeLevel
 
-			#Decrement level
-			self.level = self.level - time
-
-			#If we are in start state, we will be leaving
-			if self.state == 'START':
-				self.state = 'ACTIVE'
-
-			#If level reaches 0, drop out
-			if self.level <= 0.0:
-				self.level = 0.0 #min limit to 0
-				self.state = 'OUT'
-
-			#Anyone who had not reached active should drop out as soon as they release
-			if (self.state == 'WAIT'):
-				self.state = 'OUT'
-				self.level = 0.0
-
-			#Anyone who drops below active should drop out completely
-			if (self.state == 'ACTIVE') and (self.level < self.activeLevel):
-				self.state = 'OUT'
-				self.level = 0.0
-
+			#Decrement level, but don't go beyond zero
+			self.level = max( self.level - time, 0.0 )
 			
 	#Take a time step, increment or decrement depending on button pushed state
 	def timeStep(self, time):
+		if time <= 0.0:
+			raise Exception('Invalid time step')
 		if self.pushed:
 			#Button is pushed, increment
 			self.inc(time)
@@ -100,7 +60,16 @@ class GamePlayer:
 
 	#Get current state
 	def getState(self):
-		return self.state
+		# Computed state is quite simple
+		if (self.level >= self.startLevel) and self.pushed:
+			return 'START'
+		elif (self.level >= self.activeLevel) and self.pushed:
+			return 'ACTIVE'
+		elif (self.level > 0.0) and not self.pushed:
+			return 'ACTIVE'
+		elif (self.level > 0.0) and self.pushed:
+			return 'WAIT'
+		return 'OUT'
 
 class GameStarter:
 
