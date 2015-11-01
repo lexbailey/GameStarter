@@ -50,7 +50,7 @@ class GamePlayer:
 	#Get current state
 	def getState(self):
 		# Computed state is quite simple
-		if (self.level >= self.startLevel) and self.pushed:
+		if (self.level >= self.startLevel):
 			return 'START'
 		elif (self.level >= self.activeLevel) and self.pushed:
 			return 'ACTIVE'
