@@ -15,32 +15,21 @@ class GamePlayer:
 		#Assume button is not pushed
 		self.pushed = False
 
-	#inc, called when button is pushed and time is stepped
-	def inc(self, time):
-		if self.pushed:
-			#Increment the level, but don't go beyond startLevel
-			self.level = min( self.level + time, self.startLevel )
-
-	#dec, called when button is pushed and time is stepped
-	def dec(self, time):
-		if not self.pushed:
-			#Jump down to activeLevel, so we get the same 'off' delay
-			if self.level > self.activeLevel:
-				self.level = self.activeLevel
-
-			#Decrement level, but don't go beyond zero
-			self.level = max( self.level - time, 0.0 )
-			
 	#Take a time step, increment or decrement depending on button pushed state
 	def timeStep(self, time):
 		if time <= 0.0:
 			raise Exception('Invalid time step')
 		if self.pushed:
-			#Button is pushed, increment
-			self.inc(time)
+			# Button is pushed - increment the level, but not past startLevel
+			self.level = min( self.level + time, self.startLevel )
 		if not self.pushed:
-			#Button not pushed, decrement
-			self.dec(time)
+			# Button not pushed
+			# Drop to activeLevel, so we get the same delay for ACTIVE->OUT as WAIT->ACTIVE
+			if self.level > self.activeLevel:
+				self.level = self.activeLevel
+
+			# Decrement level, but don't go beyond zero
+			self.level = max( self.level - time, 0.0 )
 
 	#Set button state to pushed
 	def push(self):
