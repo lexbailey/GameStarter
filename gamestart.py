@@ -40,24 +40,9 @@ class GamePlayer:
 			if self.level <= 0.0:
 				self.active = False
 
-	#Set button state to pushed
-	def push(self):
-		self.pushed = True
-		
-	#Set button state to not pushed
-	def release(self):
-		self.pushed = False
-
-	#Get button state
-	def isPushed(self):
-		return self.pushed
-
-	#Get current level
-	def getLevel(self):
-		return self.level
-
 	#Get current state
-	def getState(self):
+	@property
+	def state(self):
 		# Computed state is quite simple
 		if (self.level >= self.startLevel):
 			return 'START'
@@ -90,7 +75,7 @@ class GameStarter:
 	def totalInState(self, state):
 		tot = 0
 		for i in range(self.maxPlayers):
-			if self.players[i].getState() == state:
+			if self.players[i].state == state:
 				tot = tot+1;
 		return tot
 
@@ -118,15 +103,15 @@ class GameStarter:
 	
 	#Push the given player's button
 	def push(self, player_id):
-		self.players[player_id].push()
+		self.players[player_id].pushed = True
 
 	#Release the given player's button
 	def release(self, player_id):
-		self.players[player_id].release()
+		self.players[player_id].pushed = False
 
 	#Check if the given player's button is pressed
 	def isPushed(self, player_id):
-		return self.players[player_id].isPushed()
+		return self.players[player_id].pushed
 
 	#Step all players by given time
 	def timeStep(self, time):
@@ -138,11 +123,11 @@ class GameStarter:
 
 	#Get the level of the given player
 	def getLevel(self, playerID):
-		return self.players[playerID].getLevel()
+		return self.players[playerID].level
 
 	#Get the state of the given player
 	def getState(self, playerID):
-		return self.players[playerID].getState()
+		return self.players[playerID].state
 
 def main():
 

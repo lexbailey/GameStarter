@@ -15,44 +15,44 @@ class TestStartButtons(unittest.TestCase):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
 		pl = GamePlayer(1.0, 2.0, 0.5)
-		self.assertEquals(0.0, pl.getLevel())
-		self.assertEquals("OUT", pl.getState())
-		self.assertEquals(False, pl.isPushed())
+		self.assertEquals(0.0, pl.level)
+		self.assertEquals("OUT", pl.state)
+		self.assertEquals(False, pl.pushed)
 
 	def test_player_timing(self):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
 		pl = GamePlayer(1.0, 2.0, 0.5)
 		pl.timeStep(0.5)
-		self.assertEquals("OUT", pl.getState())
-		self.assertEquals(False, pl.isPushed())
-		self.assertEquals(0.0, pl.getLevel())
+		self.assertEquals("OUT", pl.state)
+		self.assertEquals(False, pl.pushed)
+		self.assertEquals(0.0, pl.level)
 
-		pl.push()
-		self.assertEquals(True, pl.isPushed())
+		pl.pushed = True
+		self.assertEquals(True, pl.pushed)
 
 		pl.timeStep(0.51)
-		self.assertEquals("WAIT", pl.getState())
-		level = pl.getLevel()
+		self.assertEquals("WAIT", pl.state)
+		level = pl.level
 		self.assertTrue((0.509<level) and (level < 0.511))
 
 		pl.timeStep(0.5)
-		self.assertEquals("ACTIVE", pl.getState())
-		level = pl.getLevel()
+		self.assertEquals("ACTIVE", pl.state)
+		level = pl.level
 		self.assertTrue((1.009<level) and (level < 1.011))
 
 		pl.timeStep(1.0)
-		self.assertEquals("START", pl.getState())
-		level = pl.getLevel()
+		self.assertEquals("START", pl.state)
+		level = pl.level
 		self.assertTrue((1.99<level) and (level < 2.01))
 
 	def test_player_invalid_time_step(self):
 		pl = GamePlayer(1.0, 2.0, 0.5)
 		invalidTimes = [0, 0.0, -1, -1.0]
 		for invalidTime in invalidTimes:
-			pl.push()
+			pl.pushed = True
 			self.assertRaises(Exception, pl.timeStep, invalidTime)
-			pl.release()
+			pl.pushed = False
 			self.assertRaises(Exception, pl.timeStep, invalidTime)
 
 	def test_invalid_players(self):
