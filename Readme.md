@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/danieljabailey/GameStarter.svg)](https://travis-ci.org/danieljabailey/GameStarter)
 [![Coverage Status](https://coveralls.io/repos/danieljabailey/GameStarter/badge.svg?branch=master)](https://coveralls.io/r/danieljabailey/GameStarter?branch=master)
 
-To see a demo of the game start, clone, ensure py files are exacutable (`chmod +x *.py`) and then run `./gamestart.py`.
+To see a demo of the game start, clone, ensure py files are executable (`chmod +x *.py`) and then run `./gamestart.py`.
 
 There are also some test cases that test that the class handles some simple invalid configurations correctly and that it can handle the various imperfections of the humans that want to start a game. Run the tests with `./gamestart_test.py`
 
@@ -14,9 +14,9 @@ To use this code:
 
 - instantiate the `GameStarter` class
 ```python
-	gs = GameStarter(max players, activation threshold, start threshold)
+	gs = GameStarter(max players, activation threshold, start threshold, grace time)
 	#eg...
-	gs = GameStarter(4, 2.0, 5.0)
+	gs = GameStarter(4, 2.0, 5.0, 0.5)
 ```
 
 - then report whenever a player pushes or releases a button:

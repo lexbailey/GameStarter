@@ -14,53 +14,64 @@ class TestStartButtons(unittest.TestCase):
 	def test_player_init(self):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
-		pl = GamePlayer(1.0, 2.0)
-		self.assertEquals(0.0, pl.getLevel())
-		self.assertEquals("OUT", pl.getState())
-		self.assertEquals(False, pl.isPushed())
+		pl = GamePlayer(1.0, 2.0, 0.5)
+		self.assertEquals(0.0, pl.level)
+		self.assertEquals("OUT", pl.state)
+		self.assertEquals(False, pl.pushed)
+
+	def test_player_reset(self):
+		#Ensure that the player can be reset
+		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
+		pl = GamePlayer(1.0, 2.0, 0.5)
+		pl.pushed = True
+		pl.timeStep(5.0)
+		pl.reset()
+		self.assertEquals(0.0, pl.level)
+		self.assertEquals("OUT", pl.state)
+		self.assertEquals(False, pl.pushed)
 
 	def test_player_timing(self):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
-		pl = GamePlayer(1.0, 2.0)
+		pl = GamePlayer(1.0, 2.0, 0.5)
 		pl.timeStep(0.5)
-		self.assertEquals("OUT", pl.getState())
-		self.assertEquals(False, pl.isPushed())
-		self.assertEquals(0.0, pl.getLevel())
+		self.assertEquals("OUT", pl.state)
+		self.assertEquals(False, pl.pushed)
+		self.assertEquals(0.0, pl.level)
 
-		pl.push()
-		self.assertEquals(True, pl.isPushed())
+		pl.pushed = True
+		self.assertEquals(True, pl.pushed)
 
 		pl.timeStep(0.51)
-		self.assertEquals("IN", pl.getState())
-		level = pl.getLevel()
+		self.assertEquals("WAIT", pl.state)
+		level = pl.level
 		self.assertTrue((0.509<level) and (level < 0.511))
 
 		pl.timeStep(0.5)
-		self.assertEquals("ACTIVE", pl.getState())
-		level = pl.getLevel()
+		self.assertEquals("ACTIVE", pl.state)
+		level = pl.level
 		self.assertTrue((1.009<level) and (level < 1.011))
 
 		pl.timeStep(1.0)
-		self.assertEquals("START", pl.getState())
-		level = pl.getLevel()
+		self.assertEquals("START", pl.state)
+		level = pl.level
 		self.assertTrue((1.99<level) and (level < 2.01))
 
 	def test_player_invalid_time_step(self):
-		pl = GamePlayer(1.0, 2.0)
+		pl = GamePlayer(1.0, 2.0, 0.5)
 		invalidTimes = [0, 0.0, -1, -1.0]
 		for invalidTime in invalidTimes:
-			pl.push()
-			self.assertRaises(Exception, pl.inc, invalidTime)
-			pl.release()
-			self.assertRaises(Exception, pl.dec, invalidTime)
+			pl.pushed = True
+			self.assertRaises(Exception, pl.timeStep, invalidTime)
+			pl.pushed = False
+			self.assertRaises(Exception, pl.timeStep, invalidTime)
 
 	def test_invalid_players(self):
 		#It is invalid to have only one player. This should raise an exception. As should a negative number.
 		invalidInputs = [1, 0, -1, None, False, True, "2", "foo"]
 		for invalidInput in invalidInputs:
 			try:
-				gs = GameStarter(invalidInput, 1.0, 2.0)
+				gs = GameStarter(invalidInput, 1.0, 2.0, 0.5)
 				self.fail('Started with 1 player')
 			except Exception as e:
 				errorMsg = 'GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required).'
@@ -68,10 +79,10 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_invalid_levels(self):
 		#It is invalid to have a negative active level threshold. This should raise an exception, as should invalid types.
-		invalidInputs = [(-1.0, 2.0), (1.0, 0.5), (1.0, -23.0), (2, 1), (1, 0), (-3, -1), (None, None), (True, True), (False, True), ("1", "2")]
+		invalidInputs = [(-1.0, 2.0, 0.5), (1.0, 0.5, 0.2), (1.0, -23.0, 0.5), (2, 1, 3), (1, 0, 4), (-3, -1, -4), (None, None, None), (True, True, True), (False, True, False), ("1", "2", "7")]
 		for invalidInput in invalidInputs:
 			try:
-				gs = GameStarter(2, invalidInput[0], invalidInput[1])
+				gs = GameStarter(2, *invalidInput)
 				self.fail('Started with invalid levels')
 			except Exception as e:
 				errorMsg = 'GameStarter.__init__: activeLevel must be a float greater than 0, startLevel must be a float greater than activeLevel.'
@@ -82,7 +93,7 @@ class TestStartButtons(unittest.TestCase):
 		invalidInputs = [-1, -1.0, -99999, "foo", "-23", "34", "12.34", None, True, False]
 		for invalidInput in invalidInputs:
 			try:
-				gs = GameStarter(2, 1.0, 2.0)
+				gs = GameStarter(2, 1.0, 2.0, 0.5)
 				gs.timeStep(invalidInput)
 				self.fail('Invalid time step allowed')
 			except Exception as e:
@@ -93,19 +104,36 @@ class TestStartButtons(unittest.TestCase):
 		#totalInState should never raise an exception, it should always be 0 for an invalid input
 		testInputs = ["foo", 1, 2, None, True, False]
 		for testInput in testInputs:
-			gs = GameStarter(2, 1.0, 2.0)
+			gs = GameStarter(2, 1.0, 2.0, 0.5)
 			self.assertEqual(0, gs.totalInState(testInput))
 
 	def test_total_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
-			gs = GameStarter(testInput, 1.0, 2.0)
+			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			self.assertEqual(testInput, gs.totalInState("OUT"))
+
+	def test_player_state_correct(self):
+		testInputs = [2, 3, 4, 5, 6, 10, 999]
+		for testInput in testInputs:
+			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			self.assertEqual(range(testInput), sorted(gs.playersInState("OUT")))
+
+	def test_total_state_postreset(self):
+		testInputs = [2, 3, 4, 5, 6, 10, 999]
+		for testInput in testInputs:
+			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			gs.push(1)
+			gs.timeStep(1.5)
+			self.assertEqual(1, gs.totalInState("ACTIVE"))
+			self.assertEqual(testInput-1, gs.totalInState("OUT"))
+			gs.resetAll()
 			self.assertEqual(testInput, gs.totalInState("OUT"))
 
 	def test_two_player_start(self):
 		#test that two players can start a game
 		try:
-			gs = GameStarter(2, 1.0, 2.0)
+			gs = GameStarter(2, 1.0, 2.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -120,7 +148,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_single_player_cant_start(self):
 		#test that single players cannot start a game
 		try:
-			gs = GameStarter(2, 1.0, 2.0)
+			gs = GameStarter(2, 1.0, 2.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One player pushes
@@ -133,7 +161,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_player_can_drop_out(self):
 		#test that a player can go below active and drop out of the round start
 		try:
-			gs = GameStarter(2, 1.0, 2.0)
+			gs = GameStarter(2, 1.0, 2.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One player pushes
@@ -151,7 +179,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_two_player_start_with_four_player_game(self):
 		#test that two players can start a game
 		try:
-			gs = GameStarter(4, 1.0, 2.0)
+			gs = GameStarter(4, 1.0, 2.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -166,7 +194,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_button_spam_filtering(self):
 		#test that two players can start a game even when someone is button spamming
 		try:
-			gs = GameStarter(4, 1.0, 2.0)
+			gs = GameStarter(4, 1.0, 2.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -198,7 +226,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_late_joiners(self):
 		#test that for players can start a game even when some people take a while to join in
 		try:
-			gs = GameStarter(4, 1.0, 2.0)
+			gs = GameStarter(4, 1.0, 2.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One players pushes
@@ -225,7 +253,7 @@ class TestStartButtons(unittest.TestCase):
 		#test that a dodgy button that flickers on and off sometimes doesn't cause problems
 		#this also simulates people who fail to keep their hand on the button persistently
 		try:
-			gs = GameStarter(2, 1.0, 20.0) #note 20 second start time on this one
+			gs = GameStarter(2, 1.0, 20.0, 0.5) #note 20 second start time on this one
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -260,13 +288,9 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEqual(2, gs.totalStartablePlayers())
 		
 	def test_main_run(self):
+		return 0
 		gamestart.main()
 		
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-

@@ -6,106 +6,67 @@ import time
 class GamePlayer:
 	
 	#GamePlayer init
-	def __init__(self, activeLevel, startLevel):
+	def __init__(self, activeLevel, startLevel, graceLevel):
 		#Store level boundaries
 		self.activeLevel = activeLevel
 		self.startLevel = startLevel
-		#Start in the 'OUT' state
-		self.state = 'OUT'
+		self.graceLevel = graceLevel
+		self.reset()
+
+	def reset(self):
 		#Start at 0 level
 		self.level = 0.0
 		#Assume button is not pushed
 		self.pushed = False
+		#Start inactive
+		self.active = False
 
-	#inc, called when button is pushed and time is stepped
-	def inc(self, time):
-		if self.pushed:
-			#Validate time
-			if time <= 0.0:
-				raise Exception('Invalid time step')
-		
-			#This is an increment, if we are out, get in
-			if self.state == 'OUT':
-				self.state = 'IN'
-
-			#Increment the level
-			self.level = self.level + time
-
-			#Limit the level to the maximum level
-			if self.level >= self.startLevel:
-				self.level = self.startLevel
-
-			#If we are in and we reach the active level, activate
-			if self.state == 'IN' and self.level >= self.activeLevel:
-				self.state = 'ACTIVE'
-
-			#If we are active and reach the start level, start
-			if self.state == 'ACTIVE' and self.level >= self.startLevel:
-				self.state = 'START'
-
-	#dec, called when button is pushed and time is stepped
-	def dec(self, time):
-		if not self.pushed:
-			#Validate time
-			if time <= 0.0:
-				raise Exception('Invalid time step')
-
-			#Decrement level
-			self.level = self.level - time
-
-			#If we are in start state, we will be leaving
-			if self.state == 'START':
-				self.state = 'ACTIVE'
-
-			#If level reaches 0, drop out
-			if self.level <= 0.0:
-				self.level = 0.0 #min limit to 0
-				self.state = 'OUT'
-
-			#Anyone who had not reached active should drop out as soon as they release
-			if (self.state == 'IN'):
-				self.state = 'OUT'
-				self.level = 0.0
-
-			#Anyone who drops below active should drop out completely
-			if (self.state == 'ACTIVE') and (self.level < self.activeLevel):
-				self.state = 'OUT'
-				self.level = 0.0
-
-			
 	#Take a time step, increment or decrement depending on button pushed state
 	def timeStep(self, time):
+		if time <= 0.0:
+			raise Exception('Invalid time step')
 		if self.pushed:
-			#Button is pushed, increment
-			self.inc(time)
+			# Button is pushed - increment the level, but not past startLevel
+			self.level = min( self.level + time, self.startLevel )
+			#Set active on the way up
+			if self.level >= self.activeLevel:
+				self.active = True
 		if not self.pushed:
-			#Button not pushed, decrement
-			self.dec(time)
+			# Button not pushed
+			# Drop to graceLevel, so letting go takes effect quicker
+			if self.level > self.graceLevel:
+				self.level = self.graceLevel
 
-	#Set button state to pushed
-	def push(self):
-		self.pushed = True
-		
-	#Set button state to not pushed
-	def release(self):
-		self.pushed = False
-
-	#Get button state
-	def isPushed(self):
-		return self.pushed
-
-	#Get current level
-	def getLevel(self):
-		return self.level
+			# Decrement level, but don't go beyond zero
+			self.level = max( self.level - time, 0.0 )
+			#Unset active on the way down
+			if self.level <= 0.0:
+				self.active = False
 
 	#Get current state
-	def getState(self):
-		return self.state
+	@property
+	def state(self):
+		# Computed state is quite simple
+		if self.start:
+			return 'START'
+		elif self.active:
+			return 'ACTIVE'
+		elif self.wait:
+			return 'WAIT'
+		return 'OUT'
+
+	@property
+	def start(self):
+		return (self.level >= self.startLevel)
+
+	@property
+	def wait(self):
+		return (self.level > 0.0)
 
 class GameStarter:
 
 	#Initialise game starter
-	def __init__(self, maxPlayers, activeLevel, startLevel):
+	def __init__(self, maxPlayers, activeLevel, startLevel, graceLevel):
 		#Raise error if number of players is too low
 		if type(maxPlayers) != int:
 			raise Exception('GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required).')
@@ -119,28 +80,26 @@ class GameStarter:
 		#Store maximum number of players
 		self.maxPlayers = maxPlayers
 		#Create this number of players
-		self.players = [ GamePlayer(activeLevel, startLevel) for i in range(self.maxPlayers)]
+		self.players = [ GamePlayer(activeLevel, startLevel, graceLevel) for i in range(self.maxPlayers)]
+
+	def resetAll(self):
+		for pl in self.players:
+			pl.reset()
 
 	#get total number of players in given state
 	def totalInState(self, state):
-		tot = 0
-		for i in range(self.maxPlayers):
-			if self.players[i].getState() == state:
-				tot = tot+1;
-		return tot
+		return len(self.playersInState(state))
 
-	#Check if a player is able to start in this game
+	#Check if a player will be active in this game
 	def isStartablePlayer(self, player_id):
-		#A player will join a game when it starts if they are in START or ACTIVE state and have their button pushed
-		return ((self.getState(player_id) == 'START') or (self.getState(player_id) == 'ACTIVE')) and self.isPushed(player_id)
+		return self.players[player_id].active
+
+	def playersInState(self, state):
+		return [id for id, pl in enumerate(self.players) if pl.state == state]
 
 	#Get total number of startable players
 	def totalStartablePlayers(self):
-		total = 0
-		for i in range(self.maxPlayers):
-			if self.isStartablePlayer(i):
-				total = total + 1
-		return total
+		return sum(1 for player in self.players if player.start)
 
 	#Decide if a game is ready to start
 	def shouldStart(self):
@@ -148,20 +107,20 @@ class GameStarter:
 		# - at least two startable players
 		# - at least one player who has reached the start state
 		# - no players who have recently pressed (in)
-		return (self.totalStartablePlayers() > 1) and (self.totalInState('START') > 0) and (self.totalInState('IN') == 0)
+		return (self.totalStartablePlayers() > 1) and (self.totalInState('START') > 0) and (self.totalInState('WAIT') == 0)
 
 	
 	#Push the given player's button
 	def push(self, player_id):
-		self.players[player_id].push()
+		self.players[player_id].pushed = True
 
 	#Release the given player's button
 	def release(self, player_id):
-		self.players[player_id].release()
+		self.players[player_id].pushed = False
 
 	#Check if the given player's button is pressed
 	def isPushed(self, player_id):
-		return self.players[player_id].isPushed()
+		return self.players[player_id].pushed
 
 	#Step all players by given time
 	def timeStep(self, time):
@@ -173,11 +132,11 @@ class GameStarter:
 
 	#Get the level of the given player
 	def getLevel(self, playerID):
-		return self.players[playerID].getLevel()
+		return self.players[playerID].level
 
 	#Get the state of the given player
 	def getState(self, playerID):
-		return self.players[playerID].getState()
+		return self.players[playerID].state
 
 def main():
 
@@ -186,6 +145,7 @@ def main():
 	#Set level thresholds here
 	activeLevel = 2.0
 	startLevel = 5.0
+	graceLevel = 1.0
 
 	#Bar scale is number of characters that represent one second on the visualisation
 	barScale = 20
@@ -197,7 +157,7 @@ def main():
 	startBarString = '-' * (startBar-activeBar-1) + '|'
 
 	#Get an instance of GameStarter with four players
-	starter = GameStarter(4, activeLevel, startLevel)
+	starter = GameStarter(4, activeLevel, startLevel, graceLevel)
 
 	#Print header for graphics
 	print 'ID|' + activeBarString + startBarString
