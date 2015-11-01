@@ -32,7 +32,7 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEquals(True, pl.isPushed())
 
 		pl.timeStep(0.51)
-		self.assertEquals("IN", pl.getState())
+		self.assertEquals("WAIT", pl.getState())
 		level = pl.getLevel()
 		self.assertTrue((0.509<level) and (level < 0.511))
 

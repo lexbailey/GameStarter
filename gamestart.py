@@ -26,7 +26,7 @@ class GamePlayer:
 		
 			#This is an increment, if we are out, get in
 			if self.state == 'OUT':
-				self.state = 'IN'
+				self.state = 'WAIT'
 
 			#Increment the level
 			self.level = self.level + time
@@ -36,7 +36,7 @@ class GamePlayer:
 				self.level = self.startLevel
 
 			#If we are in and we reach the active level, activate
-			if self.state == 'IN' and self.level >= self.activeLevel:
+			if self.state == 'WAIT' and self.level >= self.activeLevel:
 				self.state = 'ACTIVE'
 
 			#If we are active and reach the start level, start
@@ -63,7 +63,7 @@ class GamePlayer:
 				self.state = 'OUT'
 
 			#Anyone who had not reached active should drop out as soon as they release
-			if (self.state == 'IN'):
+			if (self.state == 'WAIT'):
 				self.state = 'OUT'
 				self.level = 0.0
 
@@ -148,7 +148,7 @@ class GameStarter:
 		# - at least two startable players
 		# - at least one player who has reached the start state
 		# - no players who have recently pressed (in)
-		return (self.totalStartablePlayers() > 1) and (self.totalInState('START') > 0) and (self.totalInState('IN') == 0)
+		return (self.totalStartablePlayers() > 1) and (self.totalInState('START') > 0) and (self.totalInState('WAIT') == 0)
 
 	
 	#Push the given player's button
