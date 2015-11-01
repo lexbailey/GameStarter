@@ -6,14 +6,17 @@ import time
 class GamePlayer:
 	
 	#GamePlayer init
-	def __init__(self, activeLevel, startLevel):
+	def __init__(self, activeLevel, startLevel, graceLevel):
 		#Store level boundaries
 		self.activeLevel = activeLevel
 		self.startLevel = startLevel
+		self.graceLevel = graceLevel
 		#Start at 0 level
 		self.level = 0.0
 		#Assume button is not pushed
 		self.pushed = False
+		#Start inactive
+		self.active = False
 
 	#Take a time step, increment or decrement depending on button pushed state
 	def timeStep(self, time):
@@ -22,14 +25,20 @@ class GamePlayer:
 		if self.pushed:
 			# Button is pushed - increment the level, but not past startLevel
 			self.level = min( self.level + time, self.startLevel )
+			#Set active on the way up
+			if self.level >= self.activeLevel:
+				self.active = True
 		if not self.pushed:
 			# Button not pushed
-			# Drop to activeLevel, so we get the same delay for ACTIVE->OUT as WAIT->ACTIVE
-			if self.level > self.activeLevel:
-				self.level = self.activeLevel
+			# Drop to graceLevel, so letting go takes effect quicker
+			if self.level > self.graceLevel:
+				self.level = self.graceLevel
 
 			# Decrement level, but don't go beyond zero
 			self.level = max( self.level - time, 0.0 )
+			#Unset active on the way down
+			if self.level <= 0.0:
+				self.active = False
 
 	#Set button state to pushed
 	def push(self):
@@ -52,18 +61,16 @@ class GamePlayer:
 		# Computed state is quite simple
 		if (self.level >= self.startLevel):
 			return 'START'
-		elif (self.level >= self.activeLevel) and self.pushed:
+		elif self.active:
 			return 'ACTIVE'
-		elif (self.level > 0.0) and not self.pushed:
-			return 'ACTIVE'
-		elif (self.level > 0.0) and self.pushed:
+		elif self.level > 0.0:
 			return 'WAIT'
 		return 'OUT'
 
 class GameStarter:
 
 	#Initialise game starter
-	def __init__(self, maxPlayers, activeLevel, startLevel):
+	def __init__(self, maxPlayers, activeLevel, startLevel, graceLevel):
 		#Raise error if number of players is too low
 		if type(maxPlayers) != int:
 			raise Exception('GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required).')
@@ -77,7 +84,7 @@ class GameStarter:
 		#Store maximum number of players
 		self.maxPlayers = maxPlayers
 		#Create this number of players
-		self.players = [ GamePlayer(activeLevel, startLevel) for i in range(self.maxPlayers)]
+		self.players = [ GamePlayer(activeLevel, startLevel, graceLevel) for i in range(self.maxPlayers)]
 
 	#get total number of players in given state
 	def totalInState(self, state):
@@ -144,6 +151,7 @@ def main():
 	#Set level thresholds here
 	activeLevel = 2.0
 	startLevel = 5.0
+	graceLevel = 1.0
 
 	#Bar scale is number of characters that represent one second on the visualisation
 	barScale = 20
@@ -155,7 +163,7 @@ def main():
 	startBarString = '-' * (startBar-activeBar-1) + '|'
 
 	#Get an instance of GameStarter with four players
-	starter = GameStarter(4, activeLevel, startLevel)
+	starter = GameStarter(4, activeLevel, startLevel, graceLevel)
 
 	#Print header for graphics
 	print 'ID|' + activeBarString + startBarString
