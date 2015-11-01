@@ -11,6 +11,9 @@ class GamePlayer:
 		self.activeLevel = activeLevel
 		self.startLevel = startLevel
 		self.graceLevel = graceLevel
+		self.reset()
+
+	def reset(self):
 		#Start at 0 level
 		self.level = 0.0
 		#Assume button is not pushed

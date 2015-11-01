@@ -19,6 +19,17 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEquals("OUT", pl.state)
 		self.assertEquals(False, pl.pushed)
 
+	def test_player_reset(self):
+		#Ensure that the player can be reset
+		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
+		pl = GamePlayer(1.0, 2.0, 0.5)
+		pl.pushed = True
+		pl.timeStep(5.0)
+		pl.reset()
+		self.assertEquals(0.0, pl.level)
+		self.assertEquals("OUT", pl.state)
+		self.assertEquals(False, pl.pushed)
+
 	def test_player_timing(self):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
