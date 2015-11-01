@@ -179,7 +179,6 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(0.7)
 		gs.release(2)
 		gs.timeStep(0.5)
-		print "State of console 2: %s %f" % (gs.getState(2), gs.getLevel(2))
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
 		self.assertEqual(2, gs.totalStartablePlayers())
