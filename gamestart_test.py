@@ -288,7 +288,6 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEqual(2, gs.totalStartablePlayers())
 		
 	def test_main_run(self):
-		return 0
 		gamestart.main()
 		
 
