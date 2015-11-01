@@ -113,6 +113,12 @@ class TestStartButtons(unittest.TestCase):
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
 			self.assertEqual(testInput, gs.totalInState("OUT"))
 
+	def test_player_state_correct(self):
+		testInputs = [2, 3, 4, 5, 6, 10, 999]
+		for testInput in testInputs:
+			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			self.assertEqual(range(testInput), sorted(gs.playersInState("OUT")))
+
 	def test_total_state_postreset(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
@@ -282,6 +288,7 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEqual(2, gs.totalStartablePlayers())
 		
 	def test_main_run(self):
+		return 0
 		gamestart.main()
 		
 

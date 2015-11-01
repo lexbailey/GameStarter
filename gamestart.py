@@ -47,13 +47,21 @@ class GamePlayer:
 	@property
 	def state(self):
 		# Computed state is quite simple
-		if (self.level >= self.startLevel):
+		if self.start:
 			return 'START'
 		elif self.active:
 			return 'ACTIVE'
-		elif self.level > 0.0:
+		elif self.wait:
 			return 'WAIT'
 		return 'OUT'
+
+	@property
+	def start(self):
+		return (self.level >= self.startLevel)
+
+	@property
+	def wait(self):
+		return (self.level > 0.0)
 
 class GameStarter:
 
@@ -80,24 +88,18 @@ class GameStarter:
 
 	#get total number of players in given state
 	def totalInState(self, state):
-		tot = 0
-		for i in range(self.maxPlayers):
-			if self.players[i].state == state:
-				tot = tot+1;
-		return tot
+		return len(self.playersInState(state))
 
-	#Check if a player is able to start in this game
+	#Check if a player will be active in this game
 	def isStartablePlayer(self, player_id):
-		#A player will join a game when it starts if they are in START or ACTIVE state and have their button pushed
-		return ((self.getState(player_id) == 'START') or (self.getState(player_id) == 'ACTIVE')) and self.isPushed(player_id)
+		return self.players[player_id].active
+
+	def playersInState(self, state):
+		return [id for id, pl in enumerate(self.players) if pl.state == state]
 
 	#Get total number of startable players
 	def totalStartablePlayers(self):
-		total = 0
-		for i in range(self.maxPlayers):
-			if self.isStartablePlayer(i):
-				total = total + 1
-		return total
+		return sum(1 for player in self.players if player.start)
 
 	#Decide if a game is ready to start
 	def shouldStart(self):
