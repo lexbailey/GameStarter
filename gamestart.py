@@ -74,6 +74,10 @@ class GameStarter:
 		#Create this number of players
 		self.players = [ GamePlayer(activeLevel, startLevel, graceLevel) for i in range(self.maxPlayers)]
 
+	def resetAll(self):
+		for pl in self.players:
+			pl.reset()
+
 	#get total number of players in given state
 	def totalInState(self, state):
 		tot = 0

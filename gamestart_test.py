@@ -113,6 +113,17 @@ class TestStartButtons(unittest.TestCase):
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
 			self.assertEqual(testInput, gs.totalInState("OUT"))
 
+	def test_total_state_postreset(self):
+		testInputs = [2, 3, 4, 5, 6, 10, 999]
+		for testInput in testInputs:
+			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			gs.push(1)
+			gs.timeStep(1.5)
+			self.assertEqual(1, gs.totalInState("ACTIVE"))
+			self.assertEqual(testInput-1, gs.totalInState("OUT"))
+			gs.resetAll()
+			self.assertEqual(testInput, gs.totalInState("OUT"))
+
 	def test_two_player_start(self):
 		#test that two players can start a game
 		try:
@@ -276,8 +287,3 @@ class TestStartButtons(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
