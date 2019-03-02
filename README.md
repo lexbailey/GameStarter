@@ -3,13 +3,13 @@
 
 To see a demo of the game start, clone, then run `python3 -m GameStarter.gamestart`
 
-There are also some test cases that test that the class handles some simple invalid configurations correctly and that it can handle the various imperfections of the humans that want to start a game. Run the tests with `./gamestart_test.py`
+There are also some test cases that test that the class handles some simple invalid configurations correctly and that it can handle the various imperfections of the humans that want to start a game. Run the tests with `python -m GameStarter.gamestart_test`
 
 To use this code:
 
 - import it
 ```python
-	from gamestart import GameStarter
+	from GameStarter import GameStarter
 ```
 
 - instantiate the `GameStarter` class
