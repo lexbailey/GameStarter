@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import unittest
-import gamestart
-from gamestart import GameStarter, GamePlayer
+from GameStarter import gamestart
+from GameStarter.gamestart import GameStarter, GamePlayer
 
 class TestStartButtons(unittest.TestCase):
 	def setUp(self):
