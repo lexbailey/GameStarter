@@ -4,7 +4,7 @@ import sys
 import time
 
 class GamePlayer:
-	
+
 	#GamePlayer init
 	def __init__(self, activeLevel, startLevel, graceLevel):
 		#Store level boundaries
@@ -80,11 +80,13 @@ class GameStarter:
 		#Store maximum number of players
 		self.maxPlayers = maxPlayers
 		#Create this number of players
-		self.players = [ GamePlayer(activeLevel, startLevel, graceLevel) for i in range(self.maxPlayers)]
+		self.resetAll()
+		def newPlayer():
+			return GamePlayer(activeLevel, startLevel, graceLevel)
+		self.newPlayer = newPlayer
 
 	def resetAll(self):
-		for pl in self.players:
-			pl.reset()
+		self.players = {}
 
 	#get total number of players in given state
 	def totalInState(self, state):
@@ -95,11 +97,11 @@ class GameStarter:
 		return self.players[player_id].active
 
 	def playersInState(self, state):
-		return [id for id, pl in enumerate(self.players) if pl.state == state]
+		return [id for id, pl in self.players.items() if pl.state == state]
 
 	#Get total number of startable players
 	def totalStartablePlayers(self):
-		return sum(1 for player in self.players if player.start)
+		return len(self.playersInState('START'))
 
 	#Decide if a game is ready to start
 	def shouldStart(self):
@@ -109,34 +111,38 @@ class GameStarter:
 		# - no players who have recently pressed (in)
 		return (self.totalStartablePlayers() > 1) and (self.totalInState('START') > 0) and (self.totalInState('WAIT') == 0)
 
-	
+	def getPlayer(self, player_id):
+		if player_id not in self.players:
+			self.players[player_id] = self.newPlayer()
+		return self.players[player_id]
+
 	#Push the given player's button
 	def push(self, player_id):
-		self.players[player_id].pushed = True
+		self.getPlayer(player_id).pushed = True
 
 	#Release the given player's button
 	def release(self, player_id):
-		self.players[player_id].pushed = False
+		self.getPlayer(player_id).pushed = False
 
 	#Check if the given player's button is pressed
 	def isPushed(self, player_id):
-		return self.players[player_id].pushed
+		self.getPlayer(player_id).pushed
 
 	#Step all players by given time
 	def timeStep(self, time):
 		if (type(time) != float) or (time <= 0.0):
 			raise Exception('GameStarter.timeStep: time step must be a positive float.')
 
-		for i in range(self.maxPlayers):
-			self.players[i].timeStep(time)
+		for pl in self.players.values():
+			pl.timeStep(time)
 
 	#Get the level of the given player
 	def getLevel(self, playerID):
-		return self.players[playerID].level
+		return self.getPlayer(playerID).level
 
 	#Get the state of the given player
 	def getState(self, playerID):
-		return self.players[playerID].state
+		return self.getPlayer(playerID).state
 
 def main():
 
@@ -189,7 +195,7 @@ def main():
 		totTime += 0.05
 		#Decide if game can start
 		start = starter.shouldStart()
-		
+
 		#Step back four lines
 		sys.stdout.write("\x1B[4A")
 		#Print graphs
@@ -210,10 +216,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-		
-
-
-
-
-
-
