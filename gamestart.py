@@ -160,10 +160,10 @@ def main():
 	starter = GameStarter(4, activeLevel, startLevel, graceLevel)
 
 	#Print header for graphics
-	print 'ID|' + activeBarString + startBarString
+	print('ID|' + activeBarString + startBarString)
 	#Pad lines ready for cursor moving back
 	for i in range(4):
-		print '' 
+		print('')
 
 	#Begin with players two and four pressed
 	starter.push(1)
@@ -195,18 +195,18 @@ def main():
 		#Print graphs
 		for i in range(4):
 			thislevel = starter.getLevel(i)
-			print "%d |%s%s %s %s" % (i, ("#" * int(thislevel*barScale)), (" " * (int(barScale*startLevel)-int(barScale*thislevel))), starter.getState(i), str(starter.isPushed(i)) + '   ')
+			print("%d |%s%s %s %s" % (i, ("#" * int(thislevel*barScale)), (" " * (int(barScale*startLevel)-int(barScale*thislevel))), starter.getState(i), str(starter.isPushed(i)) + '   '))
 
 	#When game should start, get number of players in, print IDs
 	numPlayersIn = 0
 
-	print "Ready to start. Players:"
+	print("Ready to start. Players:")
 	for i in range(4):
 		if starter.isStartablePlayer(i):
 			numPlayersIn = numPlayersIn +1
-			print "\tPlayer %d" % i
+			print("\tPlayer %d" % i)
 
-	print "Start game with %d players." % numPlayersIn
+	print("Start game with %d players." % numPlayersIn)
 
 if __name__ == '__main__':
 	main()
