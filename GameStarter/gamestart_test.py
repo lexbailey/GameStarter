@@ -110,24 +110,31 @@ class TestStartButtons(unittest.TestCase):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
-			self.assertEqual(testInput, gs.totalInState("OUT"))
+			self.assertEqual(0, gs.totalInState("ACTIVE"))
+			self.assertEqual(0, gs.totalInState("WAIT"))
+			self.assertEqual(0, gs.totalInState("START"))
 
 	def test_player_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
-			self.assertEqual(list(range(testInput)), sorted(gs.playersInState("OUT")))
+			self.assertEqual(0, gs.totalInState("ACTIVE"))
+			self.assertEqual(0, gs.totalInState("WAIT"))
+			self.assertEqual(0, gs.totalInState("START"))
 
 	def test_total_state_postreset(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			gs.release(0)
 			gs.push(1)
 			gs.timeStep(1.5)
 			self.assertEqual(1, gs.totalInState("ACTIVE"))
-			self.assertEqual(testInput-1, gs.totalInState("OUT"))
+			self.assertEqual(1, gs.totalInState("OUT"))
 			gs.resetAll()
-			self.assertEqual(testInput, gs.totalInState("OUT"))
+			self.assertEqual(0, gs.totalInState("ACTIVE"))
+			self.assertEqual(0, gs.totalInState("WAIT"))
+			self.assertEqual(0, gs.totalInState("START"))
 
 	def test_two_player_start(self):
 		#test that two players can start a game
@@ -285,10 +292,10 @@ class TestStartButtons(unittest.TestCase):
 		#shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
 		self.assertEqual(2, gs.totalStartablePlayers())
-		
+
 	def test_main_run(self):
 		main()
-		
+
 
 if __name__ == '__main__':
     unittest.main()
