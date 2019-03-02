@@ -126,7 +126,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(3.0)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalStartablePlayers())
+		self.assertEqual(2, gs.totalInState('START'))
 
 	def test_single_player_cant_start(self):
 		#test that single players cannot start a game
@@ -172,7 +172,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(2.0)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalStartablePlayers())
+		self.assertEqual(2, gs.totalInState('START'))
 
 	def test_button_spam_filtering(self):
 		#test that two players can start a game even when someone is button spamming
@@ -192,7 +192,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(0.5)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalStartablePlayers())
+		self.assertEqual(2, gs.totalInState('START'))
 		#Do more buttom mashing to see if the filter still works after this
 		gs.push(2)
 		gs.timeStep(0.7)
@@ -204,7 +204,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(0.5)
 		#shouldStart must stil be true and there should still be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalStartablePlayers())
+		self.assertEqual(2, gs.totalInState('START'))
 
 	def test_late_joiners(self):
 		#test that for players can start a game even when some people take a while to join in
@@ -230,7 +230,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(2.0)
 		#and now, shouldStart must be true and there should be 4 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(4, gs.totalStartablePlayers())
+		self.assertEqual(4, gs.totalInState('START'))
 
 	def test_dodgy_button(self):
 		#test that a dodgy button that flickers on and off sometimes doesn't cause problems
@@ -268,7 +268,7 @@ class TestStartButtons(unittest.TestCase):
 
 		#shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalStartablePlayers())
+		self.assertEqual(2, gs.totalInState('START'))
 
 	def test_main_run(self):
 		main()
