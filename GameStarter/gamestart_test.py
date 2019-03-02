@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-from GameStarter import gamestart
-from GameStarter.gamestart import GameStarter, GamePlayer
+from GameStarter import GameStarter, GamePlayer, main
 
 class TestStartButtons(unittest.TestCase):
 	def setUp(self):
@@ -288,7 +287,7 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEqual(2, gs.totalStartablePlayers())
 		
 	def test_main_run(self):
-		gamestart.main()
+		main()
 		
 
 if __name__ == '__main__':
