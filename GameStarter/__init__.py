@@ -66,19 +66,12 @@ class GamePlayer:
 class GameStarter:
 
 	#Initialise game starter
-	def __init__(self, maxPlayers, activeLevel, startLevel, graceLevel):
-		#Raise error if number of players is too low
-		if type(maxPlayers) != int:
-			raise Exception('GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required).')
-		if maxPlayers < 2:
-			raise Exception('GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required). Attempted to init GameStarter with %d players.' % maxPlayers)
+	def __init__(self, _unused_was_maxPlayers_, activeLevel, startLevel, graceLevel):
 		#Raise error if startLevel or activeLevel is invalid
 		if ((type(activeLevel) != float) or (type(startLevel) != float)):
 			raise Exception('GameStarter.__init__: activeLevel must be a float greater than 0, startLevel must be a float greater than activeLevel.')
 		if ((activeLevel <= 0.0) or (startLevel <= activeLevel)):
 			raise Exception('GameStarter.__init__: activeLevel must be a float greater than 0, startLevel must be a float greater than activeLevel. (Active: %f, Start: %f)' % (activeLevel, startLevel))
-		#Store maximum number of players
-		self.maxPlayers = maxPlayers
 		#Create this number of players
 		self.resetAll()
 		def newPlayer():

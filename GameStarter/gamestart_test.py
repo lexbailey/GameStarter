@@ -65,17 +65,6 @@ class TestStartButtons(unittest.TestCase):
 			pl.pushed = False
 			self.assertRaises(Exception, pl.timeStep, invalidTime)
 
-	def test_invalid_players(self):
-		#It is invalid to have only one player. This should raise an exception. As should a negative number.
-		invalidInputs = [1, 0, -1, None, False, True, "2", "foo"]
-		for invalidInput in invalidInputs:
-			try:
-				gs = GameStarter(invalidInput, 1.0, 2.0, 0.5)
-				self.fail('Started with 1 player')
-			except Exception as e:
-				errorMsg = 'GameStarter.__init__: maxPlayers must be an integer greater than 2 (At least two players are required).'
-				self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
-
 	def test_invalid_levels(self):
 		#It is invalid to have a negative active level threshold. This should raise an exception, as should invalid types.
 		invalidInputs = [(-1.0, 2.0, 0.5), (1.0, 0.5, 0.2), (1.0, -23.0, 0.5), (2, 1, 3), (1, 0, 4), (-3, -1, -4), (None, None, None), (True, True, True), (False, True, False), ("1", "2", "7")]
