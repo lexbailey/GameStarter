@@ -67,12 +67,15 @@ class GameStarter:
 
 	#Initialise game starter
 	def __init__(self, _unused_was_maxPlayers_, activeLevel, startLevel, graceLevel):
+		activeLevel = float(activeLevel)
+		startLevel = float(startLevel)
+		graceLevel = float(graceLevel)
 		#Raise error if startLevel or activeLevel is invalid
-		if ((type(activeLevel) != float) or (type(startLevel) != float)):
-			raise Exception('GameStarter.__init__: activeLevel must be a float greater than 0, startLevel must be a float greater than activeLevel.')
-		if ((activeLevel <= 0.0) or (startLevel <= activeLevel)):
-			raise Exception('GameStarter.__init__: activeLevel must be a float greater than 0, startLevel must be a float greater than activeLevel. (Active: %f, Start: %f)' % (activeLevel, startLevel))
-		#Create this number of players
+		if (activeLevel <= 0.0):
+			raise Exception('activeLevel must be positive')
+		if (activeLevel >= startLevel):
+			raise Exception('activeLevel must be less than startLevel')
+
 		self.resetAll()
 		def newPlayer():
 			return GamePlayer(activeLevel, startLevel, graceLevel)
