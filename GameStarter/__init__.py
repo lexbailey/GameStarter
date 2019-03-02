@@ -89,17 +89,12 @@ class GameStarter:
 	def playersInState(self, state):
 		return [id for id, pl in self.players.items() if pl.state == state]
 
-	#Get total number of startable players
-	def totalStartablePlayers(self):
-		return len(self.playersInState('START'))
-
 	#Decide if a game is ready to start
 	def shouldStart(self):
 		#You should start if you have:
-		# - at least two startable players
-		# - at least one player who has reached the start state
+		# - at least two players who have reached the start state
 		# - no players who have recently pressed (in)
-		return (self.totalStartablePlayers() > 1) and (self.totalInState('START') > 0) and (self.totalInState('WAIT') == 0)
+		return (self.totalInState('START') > 1) and (self.totalInState('WAIT') == 0)
 
 	def getPlayer(self, player_id):
 		if player_id not in self.players:
