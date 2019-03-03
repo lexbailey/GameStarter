@@ -164,9 +164,10 @@ def main():
 		sys.stdout.write("\x1B[4A")
 		#Print graphs
 		for i in range(4):
-			thislevel = starter.player(i).level
-			bar_segs = int(barScale * thislevel)
-			print("%d |%s%s %s %s" % (i, "#" * bar_segs, " " * (barScale - bar_segs), starter.player(i).state, str(starter.player(i).pushed) + '   '))
+			player = starter.player(i)
+			bar_segs = int(barScale * player.level)
+			format = ("%d |%-" + str(barScale) + "s %6s %5s")
+			print(format % (i, "#" * bar_segs, player.state, str(player.pushed)))
 
 	#When game should start, get number of players in, print IDs
 	numPlayersIn = 0
