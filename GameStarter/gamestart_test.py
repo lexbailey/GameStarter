@@ -110,8 +110,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(1).push()
 		#Wait for three seconds
 		gs.timeStep(3.0)
-		#By now, shouldStart must be true and there should be 2 startable players
-		self.assertTrue(gs.shouldStart())
+		#By now, should_start must be true and there should be 2 startable players
+		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
 
 	def test_single_player_cant_start(self):
@@ -124,8 +124,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(0).push()
 		#Wait for three seconds
 		gs.timeStep(3.0)
-		#shouldStart must be false
-		self.assertFalse(gs.shouldStart())
+		#should_start must be false
+		self.assertFalse(gs.should_start)
 
 	def test_player_can_drop_out(self):
 		#test that a player can go below active and drop out of the round start
@@ -156,8 +156,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(1).push()
 		#Wait for two seconds
 		gs.timeStep(2.0)
-		#By now, shouldStart must be true and there should be 2 startable players
-		self.assertTrue(gs.shouldStart())
+		#By now, should_start must be true and there should be 2 startable players
+		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
 
 	def test_button_spam_filtering(self):
@@ -176,8 +176,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(0.7)
 		gs.player(2).release()
 		gs.timeStep(0.5)
-		#By now, shouldStart must be true and there should be 2 startable players
-		self.assertTrue(gs.shouldStart())
+		#By now, should_start must be true and there should be 2 startable players
+		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
 		#Do more buttom mashing to see if the filter still works after this
 		gs.player(2).push()
@@ -188,8 +188,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.timeStep(0.7)
 		gs.player(2).release()
 		gs.timeStep(0.5)
-		#shouldStart must stil be true and there should still be 2 startable players
-		self.assertTrue(gs.shouldStart())
+		#should_start must stil be true and there should still be 2 startable players
+		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
 
 	def test_late_joiners(self):
@@ -214,8 +214,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(3).push()
 		#another two seconds...
 		gs.timeStep(2.0)
-		#and now, shouldStart must be true and there should be 4 startable players
-		self.assertTrue(gs.shouldStart())
+		#and now, should_start must be true and there should be 4 startable players
+		self.assertTrue(gs.should_start)
 		self.assertEqual(4, len(gs.joined_players))
 
 	def test_dodgy_button(self):
@@ -252,8 +252,8 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(1).push()
 		gs.timeStep(20.0) #long one to make sure
 
-		#shouldStart must be true and there should be 2 startable players
-		self.assertTrue(gs.shouldStart())
+		#should_start must be true and there should be 2 startable players
+		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
 
 	def test_main_run(self):
