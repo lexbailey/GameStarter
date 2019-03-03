@@ -15,7 +15,7 @@ class TestStartButtons(unittest.TestCase):
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
 		pl = GamePlayer(1.0, 2.0, 0.5)
 		self.assertEqual(0.0, pl.level)
-		self.assertEqual("OUT", pl.state)
+		self.assertFalse(pl.joined)
 		self.assertEqual(False, pl.pushed)
 
 	def test_player_timing(self):
@@ -23,7 +23,7 @@ class TestStartButtons(unittest.TestCase):
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
 		pl = GamePlayer(1.0, 2.0, 0.5)
 		pl.timeStep(0.5)
-		self.assertEqual("OUT", pl.state)
+		self.assertFalse(pl.joined)
 		self.assertEqual(False, pl.pushed)
 		self.assertEqual(0.0, pl.level)
 
@@ -31,12 +31,12 @@ class TestStartButtons(unittest.TestCase):
 		self.assertEqual(True, pl.pushed)
 
 		pl.timeStep(0.51)
-		self.assertEqual("WAIT", pl.state)
+		self.assertTrue(pl.waiting)
 		level = pl.level
 		self.assertTrue((0.509<level) and (level < 0.511))
 
 		pl.timeStep(0.5)
-		self.assertEqual("ACTIVE", pl.state)
+		self.assertTrue(pl.joined)
 		level = pl.level
 		self.assertTrue((0.999 < level) and (level < 1.001))
 
@@ -142,7 +142,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(0).release()
 		#1.5 seconds later and they should already be out
 		gs.timeStep(1.5)
-		self.assertEqual("OUT", gs.player(0).state)
+		self.assertFalse(gs.player(0).joined)
 		self.assertEqual(0.0, gs.player(0).level)
 
 
