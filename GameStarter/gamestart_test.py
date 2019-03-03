@@ -94,7 +94,7 @@ class TestStartButtons(unittest.TestCase):
 			gs.player(1).push()
 			gs.step_time(1.5)
 			self.assertEqual([1], gs.joined_players)
-			gs.resetAll()
+			gs.reset()
 			self.assertEqual([], gs.joined_players)
 			self.assertEqual([], gs.waiting_players)
 			self.assertFalse(gs.ready)
