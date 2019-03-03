@@ -6,7 +6,7 @@ import time
 class GamePlayer:
 
 	#GamePlayer init
-	def __init__(self, join_delay, _unused_was_startLevel_, leave_delay):
+	def __init__(self, join_delay, leave_delay):
 		self.join_delay = float(join_delay)
 		self.leave_delay = float(leave_delay)
 		self.pushed = False
@@ -43,7 +43,7 @@ class GameStarter:
 		self.start_delay = float(total_start_delay) - float(join_delay) #FIXME Backward compatibility...
 		self.reset()
 		def newPlayer():
-			return GamePlayer(join_delay, None, leave_delay)
+			return GamePlayer(join_delay, leave_delay)
 		self.newPlayer = newPlayer
 
 	def reset(self):

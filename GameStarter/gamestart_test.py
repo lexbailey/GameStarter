@@ -13,7 +13,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_player_init(self):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
-		pl = GamePlayer(1.0, 2.0, 0.5)
+		pl = GamePlayer(1.0, 0.5)
 		self.assertEqual(1.0, pl.delay)
 		self.assertFalse(pl.joined)
 		self.assertFalse(pl.pushed)
@@ -21,7 +21,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_player_timing(self):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
-		pl = GamePlayer(1.0, 2.0, 0.5)
+		pl = GamePlayer(1.0, 0.5)
 		pl.step_time(0.5)
 		self.assertFalse(pl.joined)
 		self.assertFalse(pl.pushed)
@@ -41,7 +41,7 @@ class TestStartButtons(unittest.TestCase):
 		self.assertTrue(pl.joined)
 
 	def test_player_invalid_time_step(self):
-		pl = GamePlayer(1.0, 2.0, 0.5)
+		pl = GamePlayer(1.0, 0.5)
 		invalidTimes = [0, 0.0, -1, -1.0]
 		for invalidTime in invalidTimes:
 			pl.push()
