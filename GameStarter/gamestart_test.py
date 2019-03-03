@@ -22,7 +22,7 @@ class TestStartButtons(unittest.TestCase):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
 		pl = GamePlayer(1.0, 2.0, 0.5)
-		pl.timeStep(0.5)
+		pl.step_time(0.5)
 		self.assertFalse(pl.joined)
 		self.assertFalse(pl.pushed)
 		self.assertFalse(pl.waiting)
@@ -31,12 +31,12 @@ class TestStartButtons(unittest.TestCase):
 		pl.push()
 		self.assertTrue(pl.pushed)
 
-		pl.timeStep(0.51)
+		pl.step_time(0.51)
 		self.assertFalse(pl.joined)
 		self.assertTrue(pl.waiting)
 		self.assertTrue((0.4 < pl.delay) and (pl.delay < 0.5))
 
-		pl.timeStep(0.5)
+		pl.step_time(0.5)
 		self.assertFalse(pl.waiting)
 		self.assertTrue(pl.joined)
 
@@ -45,9 +45,9 @@ class TestStartButtons(unittest.TestCase):
 		invalidTimes = [0, 0.0, -1, -1.0]
 		for invalidTime in invalidTimes:
 			pl.push()
-			self.assertRaises(Exception, pl.timeStep, invalidTime)
+			self.assertRaises(Exception, pl.step_time, invalidTime)
 			pl.release()
-			self.assertRaises(Exception, pl.timeStep, invalidTime)
+			self.assertRaises(Exception, pl.step_time, invalidTime)
 
 	def test_invalid_levels(self):
 		#It is invalid to have a negative active level threshold. This should raise an exception, as should invalid types.
@@ -65,7 +65,7 @@ class TestStartButtons(unittest.TestCase):
 		for invalidInput in invalidInputs:
 			try:
 				gs = GameStarter(2, 1.0, 2.0, 0.5)
-				gs.timeStep(invalidInput)
+				gs.step_time(invalidInput)
 				self.fail('Invalid time step allowed')
 			except Exception as e:
 				pass
@@ -92,7 +92,7 @@ class TestStartButtons(unittest.TestCase):
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
 			gs.player(0).release()
 			gs.player(1).push()
-			gs.timeStep(1.5)
+			gs.step_time(1.5)
 			self.assertEqual([1], gs.joined_players)
 			gs.resetAll()
 			self.assertEqual([], gs.joined_players)
@@ -109,7 +109,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(0).push()
 		gs.player(1).push()
 		#Wait for three seconds
-		gs.timeStep(3.0)
+		gs.step_time(3.0)
 		#By now, should_start must be true and there should be 2 startable players
 		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
@@ -123,7 +123,7 @@ class TestStartButtons(unittest.TestCase):
 		#One player pushes
 		gs.player(0).push()
 		#Wait for three seconds
-		gs.timeStep(3.0)
+		gs.step_time(3.0)
 		#should_start must be false
 		self.assertFalse(gs.should_start)
 
@@ -136,11 +136,11 @@ class TestStartButtons(unittest.TestCase):
 		#One player pushes
 		gs.player(0).push()
 		#Wait for three seconds
-		gs.timeStep(3.0)
+		gs.step_time(3.0)
 		#player has peaked at 2 seconds, let go of the button
 		gs.player(0).release()
 		#1.5 seconds later and they should already be out
-		gs.timeStep(1.5)
+		gs.step_time(1.5)
 		self.assertFalse(gs.player(0).joined)
 		self.assertEqual(1.0, gs.player(0).delay)
 
@@ -155,7 +155,7 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(0).push()
 		gs.player(1).push()
 		#Wait for two seconds
-		gs.timeStep(2.0)
+		gs.step_time(2.0)
 		#By now, should_start must be true and there should be 2 startable players
 		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
@@ -170,24 +170,24 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(0).push()
 		gs.player(1).push()
 		#Wait for 1.5 seconds (nearly there)
-		gs.timeStep(1.5)
+		gs.step_time(1.5)
 		#player three then spams
 		gs.player(2).push()
-		gs.timeStep(0.7)
+		gs.step_time(0.7)
 		gs.player(2).release()
-		gs.timeStep(0.5)
+		gs.step_time(0.5)
 		#By now, should_start must be true and there should be 2 startable players
 		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
 		#Do more buttom mashing to see if the filter still works after this
 		gs.player(2).push()
-		gs.timeStep(0.7)
+		gs.step_time(0.7)
 		gs.player(2).release()
-		gs.timeStep(0.5)
+		gs.step_time(0.5)
 		gs.player(2).push()
-		gs.timeStep(0.7)
+		gs.step_time(0.7)
 		gs.player(2).release()
-		gs.timeStep(0.5)
+		gs.step_time(0.5)
 		#should_start must stil be true and there should still be 2 startable players
 		self.assertTrue(gs.should_start)
 		self.assertEqual(2, len(gs.joined_players))
@@ -201,19 +201,19 @@ class TestStartButtons(unittest.TestCase):
 		#One players pushes
 		gs.player(0).push()
 		#Wait for 3 seconds (player 1 fully ready)...
-		gs.timeStep(3.0)
+		gs.step_time(3.0)
 		#Player two joins in
 		gs.player(1).push()
 		#a little later...
-		gs.timeStep(0.8)
+		gs.step_time(0.8)
 		#player three then joins
 		gs.player(2).push()
 		#later still..
-		gs.timeStep(0.7)
+		gs.step_time(0.7)
 		#player four pushes too
 		gs.player(3).push()
 		#another two seconds...
-		gs.timeStep(2.0)
+		gs.step_time(2.0)
 		#and now, should_start must be true and there should be 4 startable players
 		self.assertTrue(gs.should_start)
 		self.assertEqual(4, len(gs.joined_players))
@@ -229,28 +229,28 @@ class TestStartButtons(unittest.TestCase):
 		gs.player(0).push()
 		gs.player(1).push()
 		#Wait for 1.5 seconds (nearly there)...
-		gs.timeStep(1.5)
+		gs.step_time(1.5)
 		#Player two goes dodgy
 		gs.player(1).release()
-		gs.timeStep(0.1)
+		gs.step_time(0.1)
 		gs.player(1).push()
-		gs.timeStep(0.3)
+		gs.step_time(0.3)
 		gs.player(1).release()
-		gs.timeStep(0.2)
+		gs.step_time(0.2)
 		gs.player(1).push()
-		gs.timeStep(0.7)
+		gs.step_time(0.7)
 		gs.player(1).release()
-		gs.timeStep(0.04)
+		gs.step_time(0.04)
 		gs.player(1).push()
-		gs.timeStep(10.8)
+		gs.step_time(10.8)
 		gs.player(1).release()
-		gs.timeStep(0.2)
+		gs.step_time(0.2)
 		gs.player(1).push()
-		gs.timeStep(0.7)
+		gs.step_time(0.7)
 		gs.player(1).release()
-		gs.timeStep(0.04)
+		gs.step_time(0.04)
 		gs.player(1).push()
-		gs.timeStep(20.0) #long one to make sure
+		gs.step_time(20.0) #long one to make sure
 
 		#should_start must be true and there should be 2 startable players
 		self.assertTrue(gs.should_start)

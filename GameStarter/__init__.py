@@ -14,7 +14,7 @@ class GamePlayer:
 		self.delay = self.join_delay
 
 	#Take a time step, increment or decrement depending on button pushed state
-	def timeStep(self, time):
+	def step_time(self, time):
 		if time <= 0.0:
 			raise Exception('Invalid time step')
 
@@ -84,13 +84,13 @@ class GameStarter:
 		return self.players[player_id]
 
 	#Step all players by given time
-	def timeStep(self, time):
+	def step_time(self, time):
 		time = float(time)
 		if (time <= 0.0):
 			raise Exception('time must be positive')
 
 		for pl in self.players.values():
-			pl.timeStep(time)
+			pl.step_time(time)
 		if(self.counting):
 			self.delay -= time
 		else:
@@ -138,7 +138,7 @@ def main():
 
 		#Do time calculations
 		time.sleep(0.05)
-		starter.timeStep(0.05)
+		starter.step_time(0.05)
 		totTime += 0.05
 		#Decide if game can start
 		start = starter.should_start
