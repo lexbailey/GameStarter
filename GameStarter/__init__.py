@@ -39,7 +39,7 @@ class GamePlayer:
 class GameStarter:
 
 	#Initialise game starter
-	def __init__(self, _unused_was_maxPlayers_, join_delay, total_start_delay, leave_delay):
+	def __init__(self, total_start_delay, join_delay, leave_delay):
 		self.start_delay = float(total_start_delay) - float(join_delay) #FIXME Backward compatibility...
 		self.reset()
 		def construct_player():
@@ -109,7 +109,7 @@ def main():
 	barScale = 60
 
 	#Get an instance of GameStarter with four players
-	starter = GameStarter(4, join_delay, total_start_delay, leave_delay)
+	starter = GameStarter(total_start_delay, join_delay, leave_delay)
 
 	#Print header for graphics
 	print()

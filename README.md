@@ -14,9 +14,9 @@ To use this code:
 
 - instantiate the `GameStarter` class
 ```python
-	gs = GameStarter(max players, activation threshold, start threshold, grace time)
+	gs = GameStarter(total start delay, delay to join game, delay to leave game)
 	#eg...
-	gs = GameStarter(4, 2.0, 5.0, 0.5)
+	gs = GameStarter(5.0, 2.0, 0.5)
 ```
 
 - then report whenever a player pushes or releases a button:
@@ -46,4 +46,3 @@ To use this code:
 		if gs.isStartablePlayer(i):
 			#add player i to game
 ```
-
