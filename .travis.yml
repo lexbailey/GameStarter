@@ -5,9 +5,8 @@ python:
 install:
   - pip install coveralls
 
-script: 
-  coverage run --source=gamestart.py -m GameStarter.gamestart_test
+script:
+  coverage run --source=GameStarter -m GameStarter.gamestart_test
 
 after_success:
   coveralls --rcfile=.coveragerc
-
