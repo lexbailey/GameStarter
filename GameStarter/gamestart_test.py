@@ -71,27 +71,20 @@ class TestStartButtons(unittest.TestCase):
 				errorMsg = 'GameStarter.timeStep: time step must be a positive float.'
 				self.assertEqual(errorMsg, str(e)[0:len(errorMsg)])
 
-	def test_total_state_zero(self):
-		#totalInState should never raise an exception, it should always be 0 for an invalid input
-		testInputs = ["foo", 1, 2, None, True, False]
-		for testInput in testInputs:
-			gs = GameStarter(2, 1.0, 2.0, 0.5)
-			self.assertEqual(0, gs.totalInState(testInput))
-
 	def test_total_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
-			self.assertEqual(0, gs.totalInState("ACTIVE"))
-			self.assertEqual(0, gs.totalInState("WAIT"))
+			self.assertEqual([], gs.joined_players)
+			self.assertEqual([], gs.waiting_players)
 			self.assertFalse(gs.ready)
 
 	def test_player_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
-			self.assertEqual(0, gs.totalInState("ACTIVE"))
-			self.assertEqual(0, gs.totalInState("WAIT"))
+			self.assertEqual([], gs.joined_players)
+			self.assertEqual([], gs.waiting_players)
 			self.assertFalse(gs.ready)
 
 	def test_total_state_postreset(self):
@@ -101,11 +94,10 @@ class TestStartButtons(unittest.TestCase):
 			gs.player(0).release()
 			gs.player(1).push()
 			gs.timeStep(1.5)
-			self.assertEqual(1, gs.totalInState("ACTIVE"))
-			self.assertEqual(1, gs.totalInState("OUT"))
+			self.assertEqual([1], gs.joined_players)
 			gs.resetAll()
-			self.assertEqual(0, gs.totalInState("ACTIVE"))
-			self.assertEqual(0, gs.totalInState("WAIT"))
+			self.assertEqual([], gs.joined_players)
+			self.assertEqual([], gs.waiting_players)
 			self.assertFalse(gs.ready)
 
 	def test_two_player_start(self):
