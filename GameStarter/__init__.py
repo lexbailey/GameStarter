@@ -101,15 +101,15 @@ def main():
 	#Visual test of GameStarter
 
 	#Set level thresholds here
-	activeLevel = 2.0
-	startLevel = 5.0
-	graceLevel = 1.0
+	total_start_delay = 5.0
+	join_delay = 2.0
+	leave_delay = 1.0
 
 	#Bar scale is number of characters that represent one second on the visualisation
 	barScale = 60
 
 	#Get an instance of GameStarter with four players
-	starter = GameStarter(4, activeLevel, startLevel, graceLevel)
+	starter = GameStarter(4, join_delay, total_start_delay, leave_delay)
 
 	#Print header for graphics
 	print()
