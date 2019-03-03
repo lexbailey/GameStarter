@@ -40,12 +40,6 @@ class GamePlayer:
 		self.pushed = False
 
 	@property
-	def state(self):
-		if self.waiting:
-			return 'WAIT'
-		return 'ACTIVE' if self.joined else 'OUT'
-
-	@property
 	def level(self):
 		if self.joined:
 			return self.delay / self.leave_delay
@@ -163,8 +157,10 @@ def main():
 		for i in range(4):
 			player = starter.player(i)
 			bar_segs = int(barScale * player.level)
-			format = ("%d |%-" + str(barScale) + "s %6s %5s")
-			print(format % (i, "#" * bar_segs, player.state, str(player.pushed)))
+			format = ("%d |%-" + str(barScale) + "s %6s %8s")
+			state = 'WAIT' if player.waiting else 'JOINED' if player.joined else 'OUT'
+			pushed = 'PUSHED' if player.pushed else 'RELEASED'
+			print(format % (i, "#" * bar_segs, state, pushed))
 
 	#When game should start, get number of players in, print IDs
 	numPlayersIn = 0
