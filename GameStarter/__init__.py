@@ -74,9 +74,6 @@ class GameStarter:
 	def waiting_players(self):
 		return [id for id, pl in self.players.items() if pl.waiting]
 
-	def totalInState(self, state):
-		return len([id for id, pl in self.players.items() if pl.state == state])
-
 	@property
 	def counting(self):
 		return len(self.joined_players) >= 2
