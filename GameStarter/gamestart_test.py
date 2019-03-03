@@ -14,9 +14,9 @@ class TestStartButtons(unittest.TestCase):
 		#Ensure that the player can be instantiated and does sensible things
 		#Note that this class should only be instantiated by the GameStarter and so has less validity check on its inputs
 		pl = GamePlayer(1.0, 2.0, 0.5)
-		self.assertEqual(0.0, pl.level)
+		self.assertEqual(1.0, pl.delay)
 		self.assertFalse(pl.joined)
-		self.assertEqual(False, pl.pushed)
+		self.assertFalse(pl.pushed)
 
 	def test_player_timing(self):
 		#Ensure that the player can be instantiated and does sensible things
@@ -24,29 +24,29 @@ class TestStartButtons(unittest.TestCase):
 		pl = GamePlayer(1.0, 2.0, 0.5)
 		pl.timeStep(0.5)
 		self.assertFalse(pl.joined)
-		self.assertEqual(False, pl.pushed)
-		self.assertEqual(0.0, pl.level)
+		self.assertFalse(pl.pushed)
+		self.assertFalse(pl.waiting)
+		self.assertEqual(1.0, pl.delay)
 
-		pl.pushed = True
-		self.assertEqual(True, pl.pushed)
+		pl.push()
+		self.assertTrue(pl.pushed)
 
 		pl.timeStep(0.51)
+		self.assertFalse(pl.joined)
 		self.assertTrue(pl.waiting)
-		level = pl.level
-		self.assertTrue((0.509<level) and (level < 0.511))
+		self.assertTrue((0.4 < pl.delay) and (pl.delay < 0.5))
 
 		pl.timeStep(0.5)
+		self.assertFalse(pl.waiting)
 		self.assertTrue(pl.joined)
-		level = pl.level
-		self.assertTrue((0.999 < level) and (level < 1.001))
 
 	def test_player_invalid_time_step(self):
 		pl = GamePlayer(1.0, 2.0, 0.5)
 		invalidTimes = [0, 0.0, -1, -1.0]
 		for invalidTime in invalidTimes:
-			pl.pushed = True
+			pl.push()
 			self.assertRaises(Exception, pl.timeStep, invalidTime)
-			pl.pushed = False
+			pl.release()
 			self.assertRaises(Exception, pl.timeStep, invalidTime)
 
 	def test_invalid_levels(self):
@@ -142,7 +142,7 @@ class TestStartButtons(unittest.TestCase):
 		#1.5 seconds later and they should already be out
 		gs.timeStep(1.5)
 		self.assertFalse(gs.player(0).joined)
-		self.assertEqual(0.0, gs.player(0).level)
+		self.assertEqual(1.0, gs.player(0).delay)
 
 
 	def test_two_player_start_with_four_player_game(self):

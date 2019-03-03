@@ -28,23 +28,13 @@ class GamePlayer:
 
 	@property
 	def waiting(self):
-		if self.pushed == self.joined:
-			return False
-		else:
-			return self.delay > 0.0
+		return False if self.pushed == self.joined else (self.delay > 0.0)
 
 	def push(self):
 		self.pushed = True
 
 	def release(self):
 		self.pushed = False
-
-	@property
-	def level(self):
-		if self.joined:
-			return self.delay / self.leave_delay
-		else:
-			return 1.0 - self.delay / self.join_delay
 
 class GameStarter:
 
@@ -157,20 +147,18 @@ def main():
 		#Print graphs
 		for i in range(4):
 			player = starter.player(i)
-			bar_segs = int(barScale * player.level)
+			level = (player.delay / player.leave_delay) if player.joined else (1.0 - player.delay / player.join_delay)
+			bar_segs = int(barScale * level)
 			format = ("%d |%-" + str(barScale) + "s %6s %8s")
 			state = 'WAIT' if player.waiting else 'JOINED' if player.joined else 'OUT'
 			pushed = 'PUSHED' if player.pushed else 'RELEASED'
 			print(format % (i, "#" * bar_segs, state, pushed))
 
-	#When game should start, get number of players in, print IDs
-	numPlayersIn = 0
-
 	print("Ready to start. Players:")
 	for id in starter.joined_players:
 		print("\tPlayer %d" % id)
 
-	print("Start game with %d players." % numPlayersIn)
+	print("Start game with %d players." % len(starter.joined_players))
 
 if __name__ == '__main__':
 	main()
