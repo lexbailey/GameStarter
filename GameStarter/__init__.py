@@ -123,19 +123,14 @@ def main():
 	graceLevel = 1.0
 
 	#Bar scale is number of characters that represent one second on the visualisation
-	barScale = 20
-
-	#Some maths for the time bar graphics
-	activeBar = int(activeLevel * barScale)
-	startBar = int(startLevel * barScale)
-	activeBarString = '-' * (activeBar-1) + '|'
-	startBarString = '-' * (startBar-activeBar-1) + '|'
+	barScale = 60
 
 	#Get an instance of GameStarter with four players
 	starter = GameStarter(4, activeLevel, startLevel, graceLevel)
 
 	#Print header for graphics
-	print('ID|' + activeBarString + startBarString)
+	print()
+	print('ID|' + '-' * (barScale-1) + '|')
 	#Pad lines ready for cursor moving back
 	for i in range(4):
 		print('')
@@ -170,7 +165,8 @@ def main():
 		#Print graphs
 		for i in range(4):
 			thislevel = starter.player(i).level
-			print("%d |%s%s %s %s" % (i, ("#" * int(thislevel*barScale)), (" " * (int(barScale*startLevel)-int(barScale*thislevel))), starter.player(i).state, str(starter.player(i).pushed) + '   '))
+			bar_segs = int(barScale * thislevel)
+			print("%d |%s%s %s %s" % (i, "#" * bar_segs, " " * (barScale - bar_segs), starter.player(i).state, str(starter.player(i).pushed) + '   '))
 
 	#When game should start, get number of players in, print IDs
 	numPlayersIn = 0
