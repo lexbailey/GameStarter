@@ -38,12 +38,7 @@ class TestStartButtons(unittest.TestCase):
 		pl.timeStep(0.5)
 		self.assertEqual("ACTIVE", pl.state)
 		level = pl.level
-		self.assertTrue((1.009<level) and (level < 1.011))
-
-		pl.timeStep(1.0)
-		self.assertEqual("START", pl.state)
-		level = pl.level
-		self.assertTrue((1.99<level) and (level < 2.01))
+		self.assertTrue((0.999 < level) and (level < 1.001))
 
 	def test_player_invalid_time_step(self):
 		pl = GamePlayer(1.0, 2.0, 0.5)
@@ -89,7 +84,7 @@ class TestStartButtons(unittest.TestCase):
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
 			self.assertEqual(0, gs.totalInState("ACTIVE"))
 			self.assertEqual(0, gs.totalInState("WAIT"))
-			self.assertEqual(0, gs.totalInState("START"))
+			self.assertFalse(gs.ready)
 
 	def test_player_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
@@ -97,21 +92,21 @@ class TestStartButtons(unittest.TestCase):
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
 			self.assertEqual(0, gs.totalInState("ACTIVE"))
 			self.assertEqual(0, gs.totalInState("WAIT"))
-			self.assertEqual(0, gs.totalInState("START"))
+			self.assertFalse(gs.ready)
 
 	def test_total_state_postreset(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
 			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
-			gs.release(0)
-			gs.push(1)
+			gs.player(0).release()
+			gs.player(1).push()
 			gs.timeStep(1.5)
 			self.assertEqual(1, gs.totalInState("ACTIVE"))
 			self.assertEqual(1, gs.totalInState("OUT"))
 			gs.resetAll()
 			self.assertEqual(0, gs.totalInState("ACTIVE"))
 			self.assertEqual(0, gs.totalInState("WAIT"))
-			self.assertEqual(0, gs.totalInState("START"))
+			self.assertFalse(gs.ready)
 
 	def test_two_player_start(self):
 		#test that two players can start a game
@@ -120,13 +115,13 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
-		gs.push(0)
-		gs.push(1)
+		gs.player(0).push()
+		gs.player(1).push()
 		#Wait for three seconds
 		gs.timeStep(3.0)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalInState('START'))
+		self.assertEqual(2, len(gs.joined_players))
 
 	def test_single_player_cant_start(self):
 		#test that single players cannot start a game
@@ -135,7 +130,7 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One player pushes
-		gs.push(0)
+		gs.player(0).push()
 		#Wait for three seconds
 		gs.timeStep(3.0)
 		#shouldStart must be false
@@ -148,15 +143,15 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One player pushes
-		gs.push(0)
+		gs.player(0).push()
 		#Wait for three seconds
 		gs.timeStep(3.0)
 		#player has peaked at 2 seconds, let go of the button
-		gs.release(0)
+		gs.player(0).release()
 		#1.5 seconds later and they should already be out
 		gs.timeStep(1.5)
-		self.assertEqual("OUT", gs.getState(0))
-		self.assertEqual(0.0, gs.getLevel(0))
+		self.assertEqual("OUT", gs.player(0).state)
+		self.assertEqual(0.0, gs.player(0).level)
 
 
 	def test_two_player_start_with_four_player_game(self):
@@ -166,13 +161,13 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
-		gs.push(0)
-		gs.push(1)
+		gs.player(0).push()
+		gs.player(1).push()
 		#Wait for two seconds
 		gs.timeStep(2.0)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalInState('START'))
+		self.assertEqual(2, len(gs.joined_players))
 
 	def test_button_spam_filtering(self):
 		#test that two players can start a game even when someone is button spamming
@@ -181,30 +176,30 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
-		gs.push(0)
-		gs.push(1)
+		gs.player(0).push()
+		gs.player(1).push()
 		#Wait for 1.5 seconds (nearly there)
 		gs.timeStep(1.5)
 		#player three then spams
-		gs.push(2)
+		gs.player(2).push()
 		gs.timeStep(0.7)
-		gs.release(2)
+		gs.player(2).release()
 		gs.timeStep(0.5)
 		#By now, shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalInState('START'))
+		self.assertEqual(2, len(gs.joined_players))
 		#Do more buttom mashing to see if the filter still works after this
-		gs.push(2)
+		gs.player(2).push()
 		gs.timeStep(0.7)
-		gs.release(2)
+		gs.player(2).release()
 		gs.timeStep(0.5)
-		gs.push(2)
+		gs.player(2).push()
 		gs.timeStep(0.7)
-		gs.release(2)
+		gs.player(2).release()
 		gs.timeStep(0.5)
 		#shouldStart must stil be true and there should still be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalInState('START'))
+		self.assertEqual(2, len(gs.joined_players))
 
 	def test_late_joiners(self):
 		#test that for players can start a game even when some people take a while to join in
@@ -213,24 +208,24 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One players pushes
-		gs.push(0)
+		gs.player(0).push()
 		#Wait for 3 seconds (player 1 fully ready)...
 		gs.timeStep(3.0)
 		#Player two joins in
-		gs.push(1)
+		gs.player(1).push()
 		#a little later...
 		gs.timeStep(0.8)
 		#player three then joins
-		gs.push(2)
+		gs.player(2).push()
 		#later still..
 		gs.timeStep(0.7)
 		#player four pushes too
-		gs.push(3)
+		gs.player(3).push()
 		#another two seconds...
 		gs.timeStep(2.0)
 		#and now, shouldStart must be true and there should be 4 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(4, gs.totalInState('START'))
+		self.assertEqual(4, len(gs.joined_players))
 
 	def test_dodgy_button(self):
 		#test that a dodgy button that flickers on and off sometimes doesn't cause problems
@@ -240,35 +235,35 @@ class TestStartButtons(unittest.TestCase):
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
-		gs.push(0)
-		gs.push(1)
+		gs.player(0).push()
+		gs.player(1).push()
 		#Wait for 1.5 seconds (nearly there)...
 		gs.timeStep(1.5)
 		#Player two goes dodgy
-		gs.release(1)
+		gs.player(1).release()
 		gs.timeStep(0.1)
-		gs.push(1)
+		gs.player(1).push()
 		gs.timeStep(0.3)
-		gs.release(1)
+		gs.player(1).release()
 		gs.timeStep(0.2)
-		gs.push(1)
+		gs.player(1).push()
 		gs.timeStep(0.7)
-		gs.release(1)
+		gs.player(1).release()
 		gs.timeStep(0.04)
-		gs.push(1)
+		gs.player(1).push()
 		gs.timeStep(10.8)
-		gs.release(1)
+		gs.player(1).release()
 		gs.timeStep(0.2)
-		gs.push(1)
+		gs.player(1).push()
 		gs.timeStep(0.7)
-		gs.release(1)
+		gs.player(1).release()
 		gs.timeStep(0.04)
-		gs.push(1)
+		gs.player(1).push()
 		gs.timeStep(20.0) #long one to make sure
 
 		#shouldStart must be true and there should be 2 startable players
 		self.assertTrue(gs.shouldStart())
-		self.assertEqual(2, gs.totalInState('START'))
+		self.assertEqual(2, len(gs.joined_players))
 
 	def test_main_run(self):
 		main()
