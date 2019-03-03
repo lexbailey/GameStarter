@@ -94,8 +94,9 @@ class GameStarter:
 
 	#Step all players by given time
 	def timeStep(self, time):
-		if (type(time) != float) or (time <= 0.0):
-			raise Exception('GameStarter.timeStep: time step must be a positive float.')
+		time = float(time)
+		if (time <= 0.0):
+			raise Exception('time must be positive')
 
 		for pl in self.players.values():
 			pl.timeStep(time)
