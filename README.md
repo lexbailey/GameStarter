@@ -21,28 +21,21 @@ To use this code:
 
 - then report whenever a player pushes or releases a button:
 ```python
-	gs.push(0)	#report button push for first player
-	gs.release(1)	#report button release for second player
+	gs.player(0).push()	#report button push for first player
+	gs.player(1).release()	#report button release for second player
 ```
 
 - regularly update the internal timer at the desired resolution:
 ```python
-	gs.timeStep(0.05) #Step 0.05 seconds, call this every 0.05 seconds (for example)
+	gs.step_time(0.05) #Step 0.05 seconds, call this every 0.05 seconds (for example)
 ```
 
 - then you can see if you have enough players ready like so:
 ```python
-	if gs.shouldStart() : #we have enough players to start
+	if gs.should_start : #we have enough players to start
 ```
 
-- you can get an exact number with this:
+- you can determine which players have joined using:
 ```python
-	gs.totalStartablePlayers()
-```
-
-- and you can loop through all players to see if each one is joining in:
-```python
-	for i in range(4):
-		if gs.isStartablePlayer(i):
-			#add player i to game
+	gs.joined_players
 ```
