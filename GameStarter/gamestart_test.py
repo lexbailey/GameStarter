@@ -101,10 +101,8 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_two_player_start(self):
 		#test that two players can start a game
-		try:
-			gs = GameStarter(2.0, 1.0, 0.5)
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(2.0, 1.0, 0.5)
+
 		#Both players push
 		gs.player(0).push()
 		gs.player(1).push()
@@ -116,10 +114,8 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_single_player_cant_start(self):
 		#test that single players cannot start a game
-		try:
-			gs = GameStarter(2.0, 1.0, 0.5)
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(2.0, 1.0, 0.5)
+
 		#One player pushes
 		gs.player(0).push()
 		#Wait for three seconds
@@ -129,10 +125,8 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_player_can_drop_out(self):
 		#test that a player can go below active and drop out of the round start
-		try:
-			gs = GameStarter(2.0, 1.0, 0.5)
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(2.0, 1.0, 0.5)
+
 		#One player pushes
 		gs.player(0).push()
 		#Wait for three seconds
@@ -147,10 +141,8 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_two_player_start_with_four_player_game(self):
 		#test that two players can start a game
-		try:
-			gs = GameStarter(2.0, 1.0, 0.5)
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(2.0, 1.0, 0.5)
+
 		#Both players push
 		gs.player(0).push()
 		gs.player(1).push()
@@ -162,10 +154,8 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_button_spam_filtering(self):
 		#test that two players can start a game even when someone is button spamming
-		try:
-			gs = GameStarter(2.0, 1.0, 0.5)
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(2.0, 1.0, 0.5)
+
 		#Both players push
 		gs.player(0).push()
 		gs.player(1).push()
@@ -194,10 +184,8 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_late_joiners(self):
 		#test that for players can start a game even when some people take a while to join in
-		try:
-			gs = GameStarter(2.0, 1.0, 0.5)
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(2.0, 1.0, 0.5)
+
 		#One players pushes
 		gs.player(0).push()
 		#Wait for 3 seconds (player 1 fully ready)...
@@ -221,10 +209,8 @@ class TestStartButtons(unittest.TestCase):
 	def test_dodgy_button(self):
 		#test that a dodgy button that flickers on and off sometimes doesn't cause problems
 		#this also simulates people who fail to keep their hand on the button persistently
-		try:
-			gs = GameStarter(20.0, 1.0, 0.5) #note 20 second start time on this one
-		except Exception as e:
-			self.fail('Exception during __init__')
+		gs = GameStarter(20.0, 1.0, 0.5) #note 20 second start time on this one
+
 		#Both players push
 		gs.player(0).push()
 		gs.player(1).push()
