@@ -41,12 +41,12 @@ class GameStarter:
 	#Initialise game starter
 	def __init__(self, _unused_was_maxPlayers_, join_delay, total_start_delay, leave_delay):
 		self.start_delay = float(total_start_delay) - float(join_delay) #FIXME Backward compatibility...
-		self.resetAll()
+		self.reset()
 		def newPlayer():
 			return GamePlayer(join_delay, None, leave_delay)
 		self.newPlayer = newPlayer
 
-	def resetAll(self):
+	def reset(self):
 		self.players = {}
 		self.delay = self.start_delay
 
