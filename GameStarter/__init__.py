@@ -71,7 +71,8 @@ class GameStarter:
 		return len(self.waiting_players) > 0
 
 	#Decide if a game is ready to start
-	def shouldStart(self):
+	@property
+	def should_start(self):
 		#You should start if:
 		# - the countdown has finished
 		# - no players are waiting (holding the launch)
@@ -140,7 +141,7 @@ def main():
 		starter.timeStep(0.05)
 		totTime += 0.05
 		#Decide if game can start
-		start = starter.shouldStart()
+		start = starter.should_start
 
 		#Step back four lines
 		sys.stdout.write("\x1B[4A")
