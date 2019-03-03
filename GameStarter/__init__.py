@@ -6,128 +6,94 @@ import time
 class GamePlayer:
 
 	#GamePlayer init
-	def __init__(self, activeLevel, startLevel, graceLevel):
-		#Store level boundaries
-		self.activeLevel = activeLevel
-		self.startLevel = startLevel
-		self.graceLevel = graceLevel
-		self.level = 0.0
+	def __init__(self, join_delay, _unused_was_startLevel_, leave_delay):
+		self.join_delay = float(join_delay)
+		self.leave_delay = float(leave_delay)
 		self.pushed = False
-		self.active = False
+		self.joined = False
+		self.delay = self.join_delay
 
 	#Take a time step, increment or decrement depending on button pushed state
 	def timeStep(self, time):
 		if time <= 0.0:
 			raise Exception('Invalid time step')
-		if self.pushed:
-			# Button is pushed - increment the level, but not past startLevel
-			self.level = min( self.level + time, self.startLevel )
-			#Set active on the way up
-			if self.level >= self.activeLevel:
-				self.active = True
-		if not self.pushed:
-			# Button not pushed
-			# Drop to graceLevel, so letting go takes effect quicker
-			if self.level > self.graceLevel:
-				self.level = self.graceLevel
 
-			# Decrement level, but don't go beyond zero
-			self.level = max( self.level - time, 0.0 )
-			#Unset active on the way down
-			if self.level <= 0.0:
-				self.active = False
+		if self.pushed != self.joined:
+			self.delay -= time
+			if self.delay <= 0:
+				self.joined = self.pushed
 
-	#Get current state
-	@property
-	def state(self):
-		# Computed state is quite simple
-		if self.start:
-			return 'START'
-		elif self.active:
-			return 'ACTIVE'
-		elif self.wait:
-			return 'WAIT'
-		return 'OUT'
+		if self.pushed == self.joined:
+			self.delay = self.leave_delay if self.joined else self.join_delay
 
 	@property
-	def start(self):
-		return (self.level >= self.startLevel)
+	def waiting(self):
+		return False if self.pushed == self.joined else (self.delay > 0.0)
 
-	@property
-	def wait(self):
-		return (self.level > 0.0)
+	def push(self):
+		self.pushed = True
+
+	def release(self):
+		self.pushed = False
 
 class GameStarter:
 
 	#Initialise game starter
-	def __init__(self, _unused_was_maxPlayers_, activeLevel, startLevel, graceLevel):
-		activeLevel = float(activeLevel)
-		startLevel = float(startLevel)
-		graceLevel = float(graceLevel)
-		#Raise error if startLevel or activeLevel is invalid
-		if (activeLevel <= 0.0):
-			raise Exception('activeLevel must be positive')
-		if (activeLevel >= startLevel):
-			raise Exception('activeLevel must be less than startLevel')
-
+	def __init__(self, _unused_was_maxPlayers_, join_delay, total_start_delay, leave_delay):
+		self.start_delay = float(total_start_delay) - float(join_delay) #FIXME Backward compatibility...
 		self.resetAll()
 		def newPlayer():
-			return GamePlayer(activeLevel, startLevel, graceLevel)
+			return GamePlayer(join_delay, None, leave_delay)
 		self.newPlayer = newPlayer
 
 	def resetAll(self):
 		self.players = {}
+		self.delay = self.start_delay
 
-	#get total number of players in given state
-	def totalInState(self, state):
-		return len(self.playersInState(state))
+	@property
+	def joined_players(self):
+		return [id for id, pl in self.players.items() if pl.joined]
 
-	#Check if a player will be active in this game
-	def isStartablePlayer(self, player_id):
-		return self.players[player_id].active
+	@property
+	def waiting_players(self):
+		return [id for id, pl in self.players.items() if pl.waiting]
 
-	def playersInState(self, state):
-		return [id for id, pl in self.players.items() if pl.state == state]
+	@property
+	def counting(self):
+		return len(self.joined_players) >= 2
+
+	@property
+	def ready(self):
+		return self.delay <= 0
+
+	@property
+	def waiting(self):
+		return len(self.waiting_players) > 0
 
 	#Decide if a game is ready to start
 	def shouldStart(self):
-		#You should start if you have:
-		# - at least two players who have reached the start state
-		# - no players who have recently pressed (in)
-		return (self.totalInState('START') > 1) and (self.totalInState('WAIT') == 0)
+		#You should start if:
+		# - the countdown has finished
+		# - no players are waiting (holding the launch)
+		return self.ready and not self.waiting
 
-	def getPlayer(self, player_id):
+	def player(self, player_id):
 		if player_id not in self.players:
 			self.players[player_id] = self.newPlayer()
 		return self.players[player_id]
 
-	#Push the given player's button
-	def push(self, player_id):
-		self.getPlayer(player_id).pushed = True
-
-	#Release the given player's button
-	def release(self, player_id):
-		self.getPlayer(player_id).pushed = False
-
-	#Check if the given player's button is pressed
-	def isPushed(self, player_id):
-		self.getPlayer(player_id).pushed
-
 	#Step all players by given time
 	def timeStep(self, time):
-		if (type(time) != float) or (time <= 0.0):
-			raise Exception('GameStarter.timeStep: time step must be a positive float.')
+		time = float(time)
+		if (time <= 0.0):
+			raise Exception('time must be positive')
 
 		for pl in self.players.values():
 			pl.timeStep(time)
-
-	#Get the level of the given player
-	def getLevel(self, playerID):
-		return self.getPlayer(playerID).level
-
-	#Get the state of the given player
-	def getState(self, playerID):
-		return self.getPlayer(playerID).state
+		if(self.counting):
+			self.delay -= time
+		else:
+			self.delay = self.start_delay
 
 def main():
 
@@ -139,39 +105,34 @@ def main():
 	graceLevel = 1.0
 
 	#Bar scale is number of characters that represent one second on the visualisation
-	barScale = 20
-
-	#Some maths for the time bar graphics
-	activeBar = int(activeLevel * barScale)
-	startBar = int(startLevel * barScale)
-	activeBarString = '-' * (activeBar-1) + '|'
-	startBarString = '-' * (startBar-activeBar-1) + '|'
+	barScale = 60
 
 	#Get an instance of GameStarter with four players
 	starter = GameStarter(4, activeLevel, startLevel, graceLevel)
 
 	#Print header for graphics
-	print('ID|' + activeBarString + startBarString)
+	print()
+	print('ID|' + '-' * (barScale-1) + '|')
 	#Pad lines ready for cursor moving back
 	for i in range(4):
 		print('')
 
 	#Begin with players two and four pressed
-	starter.push(1)
-	starter.push(3)
+	starter.player(1).push()
+	starter.player(3).push()
 	start = False
 	totTime = 0.0;
 	while (not start):
 
 		#Set specific times for events to happen here
 		if totTime > 3.0:
-			starter.release(1)
+			starter.player(1).release()
 		if totTime > 5.2:
-			starter.push(0)
+			starter.player(0).push()
 		if totTime > 6.0:
-			starter.push(1)
+			starter.player(1).push()
 		if totTime > 6.4:
-			starter.push(2)
+			starter.player(2).push()
 		#End of event timings
 
 		#Do time calculations
@@ -185,19 +146,19 @@ def main():
 		sys.stdout.write("\x1B[4A")
 		#Print graphs
 		for i in range(4):
-			thislevel = starter.getLevel(i)
-			print("%d |%s%s %s %s" % (i, ("#" * int(thislevel*barScale)), (" " * (int(barScale*startLevel)-int(barScale*thislevel))), starter.getState(i), str(starter.isPushed(i)) + '   '))
-
-	#When game should start, get number of players in, print IDs
-	numPlayersIn = 0
+			player = starter.player(i)
+			level = (player.delay / player.leave_delay) if player.joined else (1.0 - player.delay / player.join_delay)
+			bar_segs = int(barScale * level)
+			format = ("%d |%-" + str(barScale) + "s %6s %8s")
+			state = 'WAIT' if player.waiting else 'JOINED' if player.joined else 'OUT'
+			pushed = 'PUSHED' if player.pushed else 'RELEASED'
+			print(format % (i, "#" * bar_segs, state, pushed))
 
 	print("Ready to start. Players:")
-	for i in range(4):
-		if starter.isStartablePlayer(i):
-			numPlayersIn = numPlayersIn +1
-			print("\tPlayer %d" % i)
+	for id in starter.joined_players:
+		print("\tPlayer %d" % id)
 
-	print("Start game with %d players." % numPlayersIn)
+	print("Start game with %d players." % len(starter.joined_players))
 
 if __name__ == '__main__':
 	main()
