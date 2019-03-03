@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="game-starter",
     version="2.0.0",
-    author="Daniel Bailey",
+    author="Daniel Bailey, Nick Moriarty",
     author_email="danieljabailey@gmail.com",
     description="Decides when to start a game, based on who's holding a button.",
     long_description=long_description,
