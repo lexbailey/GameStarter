@@ -51,10 +51,10 @@ class TestStartButtons(unittest.TestCase):
 
 	def test_invalid_levels(self):
 		#It is invalid to have a negative active level threshold. This should raise an exception, as should invalid types.
-		invalidInputs = [(-1.0, 2.0, 0.5), (1.0, 0.5, 0.2), (1.0, -23.0, 0.5), (2, 1, 3), (1, 0, 4), (-3, -1, -4), (None, None, None), (True, True, True), (False, True, False), ("1", "2", "7")]
+		invalidInputs = [(2.0, -1.0, 0.5), (0.5, 1.0, 0.2), (-23.0, 1.0, 0.5), (1, 2, 3), (0, 1, 4), (-1, -3, -4), (None, None, None), (True, True, True), (True, False, False), ("2", "1", "7")]
 		for invalidInput in invalidInputs:
 			try:
-				gs = GameStarter(2, *invalidInput)
+				gs = GameStarter(*invalidInput)
 				self.fail('Started with invalid levels')
 			except Exception as e:
 				pass
@@ -64,7 +64,7 @@ class TestStartButtons(unittest.TestCase):
 		invalidInputs = [-1, -1.0, -99999, "foo", "-23", "34", "12.34", None, True, False]
 		for invalidInput in invalidInputs:
 			try:
-				gs = GameStarter(2, 1.0, 2.0, 0.5)
+				gs = GameStarter(2.0, 1.0, 0.5)
 				gs.step_time(invalidInput)
 				self.fail('Invalid time step allowed')
 			except Exception as e:
@@ -73,7 +73,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_total_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
-			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 			self.assertEqual([], gs.joined_players)
 			self.assertEqual([], gs.waiting_players)
 			self.assertFalse(gs.ready)
@@ -81,7 +81,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_player_state_correct(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
-			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 			self.assertEqual([], gs.joined_players)
 			self.assertEqual([], gs.waiting_players)
 			self.assertFalse(gs.ready)
@@ -89,7 +89,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_total_state_postreset(self):
 		testInputs = [2, 3, 4, 5, 6, 10, 999]
 		for testInput in testInputs:
-			gs = GameStarter(testInput, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 			gs.player(0).release()
 			gs.player(1).push()
 			gs.step_time(1.5)
@@ -102,7 +102,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_two_player_start(self):
 		#test that two players can start a game
 		try:
-			gs = GameStarter(2, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -117,7 +117,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_single_player_cant_start(self):
 		#test that single players cannot start a game
 		try:
-			gs = GameStarter(2, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One player pushes
@@ -130,7 +130,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_player_can_drop_out(self):
 		#test that a player can go below active and drop out of the round start
 		try:
-			gs = GameStarter(2, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One player pushes
@@ -148,7 +148,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_two_player_start_with_four_player_game(self):
 		#test that two players can start a game
 		try:
-			gs = GameStarter(4, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -163,7 +163,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_button_spam_filtering(self):
 		#test that two players can start a game even when someone is button spamming
 		try:
-			gs = GameStarter(4, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
@@ -195,7 +195,7 @@ class TestStartButtons(unittest.TestCase):
 	def test_late_joiners(self):
 		#test that for players can start a game even when some people take a while to join in
 		try:
-			gs = GameStarter(4, 1.0, 2.0, 0.5)
+			gs = GameStarter(2.0, 1.0, 0.5)
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#One players pushes
@@ -222,7 +222,7 @@ class TestStartButtons(unittest.TestCase):
 		#test that a dodgy button that flickers on and off sometimes doesn't cause problems
 		#this also simulates people who fail to keep their hand on the button persistently
 		try:
-			gs = GameStarter(2, 1.0, 20.0, 0.5) #note 20 second start time on this one
+			gs = GameStarter(20.0, 1.0, 0.5) #note 20 second start time on this one
 		except Exception as e:
 			self.fail('Exception during __init__')
 		#Both players push
